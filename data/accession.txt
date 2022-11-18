@@ -1,0 +1,41 @@
+Accession,Country,Year, Reference
+KJ642617, Nigeria,1971,(Nakazawa Y.et al. 2015)
+KP849470, Côte d'Ivoire,1971, (Nakazawa Y.et al. 2015)
+JX878428,Democratic Republic of Congro,2007,(Kugelman J.R. et al. 2014)
+MK783028,Nigeria,2017,(Yinka-Ogunleye A. et al. 2019)
+MK783030,Nigeria,2017,(Yinka-Ogunleye A. et al. 2019)
+MK783032,Nigeria,2017,(Yinka-Ogunleye A. et al. 2019)
+MK783031,Nigeria,2017,(Yinka-Ogunleye A. et al. 2019)
+MK783029,Nigeria,2017,(Yinka-Ogunleye A. et al. 2019)
+MT903337,Nigeria,2018,(Mauldin M.R. et al. 2020)
+MT903340,Nigeria,2018,(Mauldin M.R. et al. 2020)
+MN648051,Israel, 2018, (Cohen Gihon I. et al. 2019)
+MT903343,UK, 2018, (Mauldin M.R. et al. 2020)
+MT903342,Singapore, 2019, (Mauldin M.R. et al. 2020)
+OP257247, USA, 2022, (Sereewit J.et al. 2022)
+ON563414, USA, 2022, (Gigante C.M. et al. 2022)
+OP257243, USA, 2022, (Sereewit J.et al. 2022)
+OP123044, USA, 2022, (Sereewit J.et al. 2022)
+OP123045, USA, 2022, (Sereewit J.et al. 2022)
+OP123041, USA, 2022, (Sereewit J.et al. 2022)
+OP123040, USA, 2022, (Sereewit J.et al. 2022)
+OP225968, USA, 2022, (Sereewit J.et al. 2022)
+ON649713,Portugal,2022,(Isidro J. et al. 2022)
+ON843176, Portugal, 2022, (Isidro J. et al. 2022)
+ON843174, Portugal, 2022, (Isidro J. et al. 2022)
+ON843173, Portugal, 2022, (Isidro J. et al. 2022)
+ON843172, Portugal, 2022, (Isidro J. et al. 2022)
+ON694329,Germany,2022,(Brinkmann A.et al. 2022)
+ON813267, Germany, 2022, (Brinkmann A.et al. 2022)
+ON813266, Germany, 2022, (Brinkmann A.et al. 2022)
+ON813261, Germany, 2022, (Brinkmann A.et al. 2022)
+ON813255, Germany, 2022, (Brinkmann A.et al. 2022)
+ON813251, Germany, 2022, (Brinkmann A.et al. 2022)
+OP215267, Germany, 2022, (Brinkmann A.et al. 2022)
+MT903344, UK, 2018, 
+MT903345, UK, 2018,
+ON676708, USA, 2021,
+NC_003310, Zaire, 1996, clade 1
+NC_063383, Nigeria, 2018, clade 3
+KJ642616, France, 1968
+JX878410, Democratic Republic of Congo, 2007
