@@ -1,20 +1,53 @@
 # read fasta sequences, embedding them into a high dimensional space
 using Distributed
-addprocs(2)
+addprocs([("rog-ld03",2), ("ryzen",2)])
 
 @everywhere begin
-using CSV, DataFrames, Pipe
-using ProgressMeter
-using BioAlignments
-using GenomicAnnotations
-using BioSequences
-using FASTX
-using Dates
+    using CSV, DataFrames, Pipe
+    using ProgressMeter
+    using BioAlignments
+    using GenomicAnnotations
+    using BioSequences
+    using FASTX
+    using Dates
 end
-# read meta data
-@everywhere begin
-    meta_df = CSV.read("metadata.csv", DataFrame)
+@everywhere using ProgressLogging
+@everywhere using TerminalLoggers, ObservablePmap
+@everywhere using Logging: global_logger
+@everywhere global_logger(TerminalLogger())
 
+# read meta data
+# @everywhere CONTROL = [([DNA_A, DNA_C], [DNA_A, DNA_T]), ([DNA_G, DNA_T], [DNA_A, DNA_T])]
+# @everywhere control_label = "AC2AT"
+@everywhere CONTROL = [
+    # ([DNA_A], [DNA_C]), 
+    ([DNA_T], [DNA_G]),
+    # ([DNA_A], [DNA_T]), 
+    ([DNA_T], [DNA_A]),
+    # ([DNA_A], [DNA_G]), 
+    ([DNA_T], [DNA_C])
+    ]
+@everywhere control_label = "A2C"
+
+
+
+ref_accs = [
+    "KP849470",
+    "KJ642617",
+    "KJ642616",
+    "MK783029"
+    # "NC_003310",
+    # "JX878428",
+    # "ON563414.3",
+    # "ON676708",
+    # "OP123040",
+    # "OP257247"
+]
+
+@everywhere begin
+    meta_df = CSV.read("meta_data.csv", DataFrame)
+    # bad_df = CSV.read("data/bad_accs.txt", DataFrame)
+    # meta_df = meta_df[[i for i ∈ eachindex(meta_df.Accession) if meta_df.Accession[i] ∉ bad_df.Accession], :]
     records = []
     dates = Date[]
     accs = []
@@ -47,6 +80,7 @@ end
         snp_frame = DataFrame(
             APOBEC = Int[],
             APOBEC⁻¹ = Int[], # reverse APOBEC
+            CONTROL = Int[], # non-APOBEC relevant mutations AC -> AT, GT -> AT
             SYNONYMOUS = Int[],
         )
         if seqₓ[1:3] ≠ [DNA_A, DNA_T, DNA_G]
@@ -60,6 +94,7 @@ end
         posᵧ = 1
         for i ∈ 2:length(alg)-1
             APOBEC = [([DNA_T,DNA_C], [DNA_T,DNA_T]), ([DNA_G, DNA_A], [DNA_A, DNA_A])]
+            # CONTROL = [([DNA_A, DNA_C], [DNA_A, DNA_T]), ([DNA_G, DNA_T], [DNA_A, DNA_T])]
             xᵢ, yᵢ = alg[i]
             if xᵢ != DNA_Gap
                 posₓ += 1
@@ -90,6 +125,7 @@ end
             snp_flag = false
             APOBEC_flag = false
             SYNONYMOUS_flag = false
+            CONTROL_flag = false
             APOBEC⁻¹_flag = false
             # @show x,y  # every pair of aligned characters, both x==y or x!=y
             if xᵢ ≠ yᵢ
@@ -110,8 +146,17 @@ end
                             ([yᵢ, yᵢ₊₁], [xᵢ, xᵢ₊₁]) ∈ APOBEC
                     )
                         APOBEC⁻¹_flag = true
+                    elseif (
+                            # dinucleotide change
+                            ([xᵢ₋₁, xᵢ], [yᵢ₋₁, yᵢ]) ∈ CONTROL ||
+                            ([xᵢ, xᵢ₊₁], [yᵢ, yᵢ₊₁]) ∈ CONTROL ||
+                            # single nucleotide change 
+                            ([xᵢ], [yᵢ]) ∈ CONTROL
+                    )
+                        CONTROL_flag = true
                     end
-                    push!(snp_frame, [APOBEC_flag, APOBEC⁻¹_flag ,SYNONYMOUS_flag])
+                    # note: we will not count the same mutation twice by looking at (i-1) and (i+1) positions directly, because only if xᵢ ≠ yᵢ, we will count it
+                    push!(snp_frame, [APOBEC_flag, APOBEC⁻¹_flag , CONTROL_flag ,SYNONYMOUS_flag])
                 end
             end
         end
@@ -140,16 +185,18 @@ end
         if seqₓ[1:3] ≠ [DNA_A, DNA_T, DNA_G]
             # the query is not the reference
             # @warn "No start codon" seqₓ
-            return (0, 0, 0)
+            return (0, 0, 0, 0)
         end
         snp_frame = DataFrame(
             APOBEC = Int[],
             APOBEC⁻¹ = Int[], # reverse APOBEC
+            CONTROL = Int[],
         )
         posₓ = 1
         posᵧ = 1
         for i ∈ 2:length(alg)-1
             APOBEC = [([DNA_T,DNA_C], [DNA_T,DNA_T]), ([DNA_G, DNA_A], [DNA_A, DNA_A])]
+            
             xᵢ, yᵢ = alg[i]        
             xᵢ₋₁, yᵢ₋₁ = alg[i-1]
             xᵢ₊₁, yᵢ₊₁ = alg[i+1]
@@ -163,6 +210,7 @@ end
                             # synonymous
                             APOBEC_flag = false
                             APOBEC⁻¹_flag = false
+                            CONTROL_flag = false
                             if (
                                 ([xᵢ₋₁, xᵢ], [xᵢ₋₁, y]) ∈ APOBEC ||
                                 ([y, xᵢ₊₁], [y, xᵢ₊₁]) ∈ APOBEC
@@ -173,8 +221,14 @@ end
                                 ([xᵢ, xᵢ₊₁], [y, xᵢ₊₁]) ∈ APOBEC
                             )
                                 APOBEC⁻¹_flag = true
+                            elseif (
+                                ([xᵢ₋₁, xᵢ], [xᵢ₋₁, y]) ∈ CONTROL ||
+                                ([y, xᵢ₊₁], [y, xᵢ₊₁]) ∈ CONTROL ||
+                                ([xᵢ], [y]) ∈ CONTROL
+                            )
+                                CONTROL_flag = true
                             end
-                            push!(snp_frame, [APOBEC_flag, APOBEC⁻¹_flag])
+                            push!(snp_frame, [APOBEC_flag, APOBEC⁻¹_flag, CONTROL_flag])
                         end
                     end
                 end
@@ -186,7 +240,7 @@ end
             # @show posᵧ
             # @show seqᵧ
         end
-        return (length(snp_frame.APOBEC), sum(snp_frame.APOBEC), sum(snp_frame.APOBEC⁻¹))
+        return (nrow(snp_frame), sum(snp_frame.APOBEC), sum(snp_frame.APOBEC⁻¹), sum(snp_frame.CONTROL))
     end
 
     @everywhere function alg2sym_by_sites(alg)
@@ -202,11 +256,13 @@ end
         snp_frame = DataFrame(
             APOBEC = Int[],
             APOBEC⁻¹ = Int[], # reverse APOBEC
+            CONTROL = Int[],
         )
         posₓ = 1
         posᵧ = 1
         for i ∈ 2:length(alg)-1
             APOBEC = [([DNA_T,DNA_C], [DNA_T,DNA_T]), ([DNA_G, DNA_A], [DNA_A, DNA_A])]
+            
             xᵢ, yᵢ = alg[i]        
             xᵢ₋₁, yᵢ₋₁ = alg[i-1]
             xᵢ₊₁, yᵢ₊₁ = alg[i+1]
@@ -216,6 +272,7 @@ end
                 sym_flag = false
                 APOBEC_flag = false
                 APOBEC⁻¹_flag = false
+                CONTROL_flag = false
                 for y ∈ [DNA_A, DNA_T, DNA_C, DNA_G]
                     if y ≠ xᵢ # (consider the xᵢ → y mutation)
                         condonᵧ = pos2codon(y, posₓ, seqₓ)
@@ -232,12 +289,18 @@ end
                                 ([xᵢ, xᵢ₊₁], [y, xᵢ₊₁]) ∈ APOBEC
                             )
                                 APOBEC⁻¹_flag = true
+                            elseif (
+                                ([xᵢ₋₁, xᵢ], [xᵢ₋₁, y]) ∈ CONTROL ||
+                                ([y, xᵢ₊₁], [y, xᵢ₊₁]) ∈ CONTROL ||
+                                ([xᵢ], [y]) ∈ CONTROL
+                            )
+                                CONTROL_flag = true
                             end
                         end
                     end
                 end
                 if sym_flag
-                    push!(snp_frame, [APOBEC_flag, APOBEC⁻¹_flag])
+                    push!(snp_frame, [APOBEC_flag, APOBEC⁻¹_flag, CONTROL_flag])
                 end
             end
             if yᵢ != DNA_Gap
@@ -247,7 +310,7 @@ end
             # @show posᵧ
             # @show seqᵧ
         end
-        return (length(snp_frame.APOBEC), sum(snp_frame.APOBEC), sum(snp_frame.APOBEC⁻¹))
+        return (nrow(snp_frame), sum(snp_frame.APOBEC), sum(snp_frame.APOBEC⁻¹), sum(snp_frame.CONTROL))
     end
 
     @everywhere function analysis(ref_acc)
@@ -264,11 +327,11 @@ end
         end
         @info "starting alignment"
         diffs = []
-        @showprogress 1 for (record,acc) in zip(records,accs)
+        @withprogress name="alignment with reference $(ref_acc)" for (record,acc,i) in zip(records,accs, eachindex(records))
             diff = Array{Any}(undef, length(genes))
             # genomeᵢ = readgbk("data/$(acc).gbk")[1]
             genome_length = length(FASTX.sequence(LongDNA{4}, record))
-            Threads.@threads for i ∈ 1:length(genes)
+            Threads.@threads for i ∈ eachindex(genes)
                 gene = genes[i]
                 gene_pos = locus(gene).position |> collect
                 gene_start = gene_pos[1] |> (x -> minimum([20000 * floor(Int, x/20000) + 1, genome_length]))
@@ -295,12 +358,14 @@ end
                 end
             end
             push!(diffs, diff)
+            @logprogress i/length(records)
         end
         #     save("tmp/local_alignment_$(ref_acc).jld", "diffs",diffs)
         # else
         #     @info "alignment records found, load alignment"
         #     diffs = load("tmp/local_alignment_$(ref_acc).jld", "diffs")
         # end
+        @info "alignment finished"
 
 
         info_df = DataFrame(
@@ -312,76 +377,132 @@ end
             Nₐₚₒₛᵧₘ = Int[],
             Nₐₚₒₛᵧₘ⁻¹ = Int[],
             Nₐ₊₋ = Int[],
+            Nᵪ = Int[],
             Oₛᵧₘ = Int[],
             Oₐₚₒₛᵧₘ = Int[],
             Oₐₚₒₛᵧₘ⁻¹ = Int[],
             Oₐ₊₋ = Int[],
+            Oᵪ = Int[],
             pₛᵧₘ = Float64[],
             pₐₚₒₛᵧₘ = Float64[],
             pₐₚₒₛᵧₘ⁻¹ = Float64[],
             pₐ₊₋ = Float64[],
+            pᵪ = Float64[],
         )
-        @info "Start"
-        for i ∈ 1:length(records)
+        @info "counting SNPs"
+        @withprogress name="SNP counting with reference $(ref_acc)" for i ∈ 1:length(records)
             print("$i out of $(length(records))      \r")
             diff = diffs[i]
             acc = accs[i]
             date = dates[i]
-            Nₛᵧₘ, Nₐₚₒₛᵧₘ, Nₐₚₒ⁻¹ₛᵧₘ = (0,0,0)
+            Nₛᵧₘ, Nₐₚₒₛᵧₘ, Nₐₚₒ⁻¹ₛᵧₘ, Nᵪ = (0,0,0,0)
             SNP_FRAME = DataFrame(
                 APOBEC = Int[],
                 APOBEC⁻¹ = Int[],
+                CONTROL = Int[],
                 SYNONYMOUS = Int[],
             )
-            for j ∈ 1:length(diff)
+            for j ∈ eachindex(diff)
                 if QC(diff[j]) > 4
                     # filter out mismatches with low score
                     snp_frame = alg2snp(diff[j])
-                    nₛᵧₘ, nₐₚₒₛᵧₘ,nₐₚₒ⁻¹ₛᵧₘ = alg2sym(diff[j]) 
+                    nₛᵧₘ, nₐₚₒₛᵧₘ, nₐₚₒ⁻¹ₛᵧₘ, nᵪ = alg2sym(diff[j]) 
                     SNP_FRAME = vcat(SNP_FRAME, snp_frame)
                     Nₛᵧₘ += nₛᵧₘ
                     Nₐₚₒₛᵧₘ += nₐₚₒₛᵧₘ
                     Nₐₚₒ⁻¹ₛᵧₘ += nₐₚₒ⁻¹ₛᵧₘ
+                    Nᵪ += nᵪ
                 end
             end
             Oₛᵧₘ = sum(SNP_FRAME.SYNONYMOUS)
             Oₐₚₒₛᵧₘ = sum(SNP_FRAME.APOBEC .* SNP_FRAME.SYNONYMOUS)
             Oₐₚₒₛᵧₘ⁻¹ = sum(SNP_FRAME.APOBEC⁻¹ .* SNP_FRAME.SYNONYMOUS)
+            Oᵪ = sum(SNP_FRAME.CONTROL .* SNP_FRAME.SYNONYMOUS)
             pₛᵧₘ = Oₛᵧₘ / Nₛᵧₘ
             pₐₚₒₛᵧₘ = Oₐₚₒₛᵧₘ / Nₐₚₒₛᵧₘ
             pₐₚₒₛᵧₘ⁻¹ = Oₐₚₒₛᵧₘ⁻¹ / Nₐₚₒ⁻¹ₛᵧₘ
-            push!(info_df, [acc,
-            ref_acc,
-            date,
-            Dates.year(date),
-            Nₛᵧₘ,
-            Nₐₚₒₛᵧₘ,
-            Nₐₚₒ⁻¹ₛᵧₘ,
-            Nₐₚₒₛᵧₘ + Nₐₚₒ⁻¹ₛᵧₘ,
-            Oₛᵧₘ, 
-            Oₐₚₒₛᵧₘ, 
-            Oₐₚₒₛᵧₘ⁻¹, 
-            Oₐₚₒₛᵧₘ + Oₐₚₒₛᵧₘ⁻¹,
-            pₛᵧₘ, 
-            pₐₚₒₛᵧₘ, 
-            pₐₚₒₛᵧₘ⁻¹,
-            pₐₚₒₛᵧₘ + pₐₚₒₛᵧₘ⁻¹,
-            ])
+            pᵪ = Oᵪ / Nᵪ
+            if Nₛᵧₘ > 85000
+                push!(info_df, [acc,
+                ref_acc,
+                date,
+                Dates.year(date),
+                Nₛᵧₘ,
+                Nₐₚₒₛᵧₘ,
+                Nₐₚₒ⁻¹ₛᵧₘ,
+                Nₐₚₒₛᵧₘ + Nₐₚₒ⁻¹ₛᵧₘ,
+                Nᵪ,
+                Oₛᵧₘ, 
+                Oₐₚₒₛᵧₘ, 
+                Oₐₚₒₛᵧₘ⁻¹, 
+                Oₐₚₒₛᵧₘ + Oₐₚₒₛᵧₘ⁻¹,
+                Oᵪ,
+                pₛᵧₘ, 
+                pₐₚₒₛᵧₘ, 
+                pₐₚₒₛᵧₘ⁻¹,
+                pₐₚₒₛᵧₘ + pₐₚₒₛᵧₘ⁻¹,
+                pᵪ
+                ])
+            end
+            @logprogress i/length(records)
         end
-        CSV.write("./data/APOBEC_synonymous_$(ref_acc).csv", info_df)
+        # reversely sort the dataframe by date
+        info_df = sort(info_df, :date, rev=true)
+        CSV.write("./data/extended_APOBEC_$(control_label)_synonymous_$(ref_acc).csv", info_df)
+        @info "finished"
     end
 
-# ref_accs = [
-#     "KP849470.1",
-#     "MN648051.1",
-#     "KJ642617",
-#     # "MT903337.1",
-#     # "ON563414.3",
-#     # "ON676708",
-#     # "OP123040",
-#     # "OP257247"
-# ]
 
-@showprogress pmap(analysis, accs)
 
+# @showprogress pmap(analysis, accs)
+
+summ, task = ologpmap( 1:length(ref_accs); logger_f=TerminalLogger) do id
+    analysis(ref_accs[id])  
+end
+
+# Define a function that takes a string as an argument
+function erase_output(str)
+    # Count the number of "\n"s in the string
+    n = count(isequal('\n'), str)
+    # Print "\033[F" control sequences n times
+    for i in 1:n
+      print("\033[F")
+    end
+end
+
+function replace_tab(str::AbstractString)
+    # Use the replace function with a regular expression pattern to match \t and a replacement string of 4 spaces
+    return replace(str, r"\t" => "    ")
+end
+
+
+
+# Define a function that takes a string as an argument
+function pad_output(str)
+    # Split the string by "\n" and store the lines in an array
+    lines = split(str, "\n")
+    # Find the maximum length of the lines
+    max_len = maximum(length, lines)
+    # Loop through the lines and insert spaces between "\n" to make them equal length
+    for i in eachindex(lines)
+      # Calculate the number of spaces needed
+      n_spaces = max_len - length(lines[i])
+      # Insert the spaces after the line
+      lines[i] = lines[i] * " " ^ n_spaces
+    end
+    # Join the lines with "\n" and return the result
+    return join(lines, "\n")
+  end
+# clc()
+# erase_output(summ.val)
+
+while !istaskdone(task)
+    str = summ.val |> pad_output |> replace_tab
+    print(str)
+    sleep(1)
+    erase_output(str)
+end
+
+println(summ.val |> pad_output)
+@info "Done"
 

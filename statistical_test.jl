@@ -33,67 +33,95 @@ function binom(n, k)
     end
 end
 
-
-include("grouping.jl")
-
-
-# test for binomial distribution
-function pᵦ(accs, ref_acc)
-    df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
-    Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-    Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-    return pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
+function slope(X, y)
+    β = (X'X)\(X'y)
+    return β
 end
 
-function pᵦ₊(accs, ref_acc)
-    df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
-    Oₐₚₒₛᵧₘs = [df.Oₐₚₒₛᵧₘ[df.acc .== acc][1] for acc in accs]
-    Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-    return pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
+function random_acc_by_year(df, year)
+    cur_acc = df.acc[rand([i for i in 1:length(df.acc) if Date(year+1,1,1) > df.date[i] ≥ Date(year,1,1)])]
+    return cur_acc
 end
+function random_acc_by_year(accsₐ, times, year)
+    accs = []
+    for (acc, date) ∈ zip(accsₐ, times)
+        if Date(year+1,1,1) > date ≥ Date(year,1,1)
+            push!(accs, acc)
+        end
+    end
+    return accs[rand(1:length(accs))]
+end
+years = [2017,2018,2021,2022, 2023]
 
 
-## Test 1: animal reservoir test
+# Figure 1
+ref_acc = "KP849470"
+df = CSV.read("./data/extended_APOBEC_A2C_synonymous_$(ref_acc).csv", DataFrame)
+df_AC2AT = CSV.read("./data/extended_APOBEC_AC2AT_synonymous_$(ref_acc).csv", DataFrame)
+pre2016_accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
+pre2016_accs = [x for x in pre2016_accs if x != ref_acc]
+post2016_accs = @pipe df |> filter(row ->row.date > Date(2010,1,1),_) |> (x -> x.acc)
+post2016_accs = [x for x in post2016_accs if x != ref_acc]
+
+## Figure 1A
+plot_df = @pipe df |> filter(row -> row.acc ∈ pre2016_accs, _)
+slope(plot_df.Oₛᵧₘ, plot_df.Oₐ₊₋)
+plot_df = @pipe df |> filter(row -> row.acc ∈ post2016_accs, _)
+slope([plot_df.Oₛᵧₘ ones(nrow(plot_df))], plot_df.Oₐ₊₋)
+
+## Figure 1B
+plot_df = df_AC2AT
+slope(plot_df.Oₛᵧₘ .- plot_df.Oₐ₊₋, plot_df.Oᵪ)
+
+## Figure 1C
+plot_df = df
+slope(plot_df.Oₛᵧₘ .- plot_df.Oₐ₊₋, plot_df.Oᵪ)
+
+# Figure 2
 ref_acc = "KJ642617"
-df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
+df = CSV.read("./data/extended_APOBEC_A2C_synonymous_$(ref_acc).csv", DataFrame)
+pre2016_accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
+pre2016_accs = [x for x in pre2016_accs if x != ref_acc]
+post2016_accs = @pipe df |> filter(row ->row.date > Date(2010,1,1),_) |> (x -> x.acc)
+post2016_accs = [x for x in post2016_accs if x != ref_acc]
 
-accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
-accs = [x for x in accs if x != ref_acc]
-Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-@info "p-value for the reference group having the same evolutionary environment" pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
+## Figure 2A
+plot_df = @pipe df |> filter(row -> row.acc ∈ pre2016_accs, _)
+a₀ = slope(plot_df.Oₛᵧₘ, plot_df.Oₐ₊₋)
 
-# use linear regression on Oₐₚₒₛᵧₘs and Oₛᵧₘs
-X = Oₛᵧₘs
-y = Oₐₚₒₛᵧₘs
-β = X\y 
-@show β
-# @show β * df.Nₛᵧₘ[1]/df.Nₐₚₒₛᵧₘ[1]
-# @show mean(y - X*β)
-# @show std(y - X*β)
-# calculate R²
-ŷ = X*β
-ȳ = mean(y)
-SST = sum((y .- ȳ).^2)
-SSE = sum((ŷ - y).^2)
-# @show 1-SSE/SST
-@info "R² for the reference group" 1-SSE/SST
+plot_df = @pipe df |> filter(row -> row.acc ∈ post2016_accs, _)
+a₁,b = slope([plot_df.Oₛᵧₘ ones(nrow(plot_df))], plot_df.Oₐ₊₋)
 
+### the intersection of the two lines
+####  y = a₀ * x, y = a₁ * x + b
+####  a₀ * x = a₁ * x + b
+####  x = b / (a₀ - a₁)
+x = b / (a₀ - a₁)
+y = a₀ * x
 
-## Test 2: human reservoir test
-ref_acc = "MN648051"
-# Linear regression
-df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
-# Now we construct the test for homogeneity
-# we pick KJ642617.1, KJ642617.1, JX878428.1
-old_accs = accs
-accs = @pipe df |> filter(row ->row.date > Date(2010,1,1),_) |> (x -> x.acc)
-accs = [x for x in accs if x != ref_acc]
-Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-years = [2017,2018,2021,2022]
+## Figure 2B
+ref_acc = "MK783029"
+df = CSV.read("./data/extended_APOBEC_A2C_synonymous_$(ref_acc).csv", DataFrame)
+pre2016_accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
+pre2016_accs = [x for x in pre2016_accs if x != ref_acc]
+post2016_accs = @pipe df |> filter(row ->row.date > Date(2010,1,1),_) |> (x -> x.acc)
+post2016_accs = [x for x in post2016_accs if x != ref_acc]
+
+plot_df = @pipe df |> filter(row -> row.acc ∈ pre2016_accs, _)
+a₀, b = slope([plot_df.Oₛᵧₘ ones(nrow(plot_df))], plot_df.Oₐ₊₋)
+
+plot_df = @pipe df |> filter(row -> row.acc ∈ post2016_accs, _)
+a₁ = slope(plot_df.Oₛᵧₘ, plot_df.Oₐ₊₋)
+
+## Test in Figure 2
+ref_acc = "KJ642617"
+df = CSV.read("./data/extended_APOBEC_A2C_synonymous_$(ref_acc).csv", DataFrame)
+pre2016_accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
+pre2016_accs = [x for x in pre2016_accs if x != ref_acc]
+post2016_accs = @pipe df |> filter(row ->row.date > Date(2010,1,1),_) |> (x -> x.acc)
+post2016_accs = [x for x in post2016_accs if x != ref_acc]
 ps = []
-for i in 1:100
+for i in 1:1000
     compare_accs = [random_acc_by_year(df, year) for year in years]
     Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in compare_accs]
     Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in compare_accs]
@@ -102,154 +130,32 @@ for i in 1:100
     end
     push!(ps, pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs))
 end
-@info "mean p-value for the APOBEC3-group having the same evolutionary environment" mean(ps)
+@show mean(ps)
+#mean(ps) = 0.0009197975997642998
 
-# @show pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
-# the p-test fail because we did not take into account the correlation
+animal_accs = pre2016_accs ∪ ["MK783029"]
+test_df = @pipe df |> filter(row -> row.acc ∈ animal_accs, _)
+@show pₕ(test_df.Oₐ₊₋, test_df.Oₛᵧₘ)
 
-# use linear regression on Oₐₚₒₛᵧₘs and Oₛᵧₘs
-# X = Oₛᵧₘs
-# y = Oₐₚₒₛᵧₘs
-# β = X\y
-# @show β
-# @show β * df.Nₛᵧₘ[1]/df.Nₐₚₒₛᵧₘ[1]
-# @show mean(y - X*β)
-# @show std(y - X*β)
-# calculate R²
-ŷ = X*β
-ȳ = mean(y)
-SST = sum((y .- ȳ).^2)
-SSE = sum((ŷ - y).^2)
-@info "R² for the linear model of the APOBEC3 group"  R² = 1-SSE/SST
-# Statistical Test by Sampling
-df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
-# because the sequences in 2022 are not independent, but highly correlated, we just pick one sequence from each cluster
-# randomly pick one sequence whose date is after 2022-01-01
+ref_acc = "MK783029"
+df = CSV.read("./data/extended_APOBEC_A2C_synonymous_$(ref_acc).csv", DataFrame)
+pre2016_accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
+pre2016_accs = [x for x in pre2016_accs if x != ref_acc]
+post2016_accs = @pipe df |> filter(row ->row.date > Date(2010,1,1),_) |> (x -> x.acc)
+post2016_accs = [x for x in post2016_accs if x != ref_acc]
+Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in pre2016_accs]
+Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in pre2016_accs]
+@show pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
 
-# function random_acc_by_year(df, year)
-#     cur_acc = df.acc[rand([i for i in 1:length(df.acc) if Date(year+1,1,1) > df.date[i] ≥ Date(year,1,1)])]
-#     return cur_acc
-# end
-
-# Test 2.5 : test if all the genommes are from the same evolutionary environment
+## Figure 3C
 ref_acc = "KJ642617"
-df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
+df = CSV.read("./data/extended_APOBEC_A2C_synonymous_$(ref_acc).csv", DataFrame)
+pre2016_accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
+pre2016_accs = [x for x in pre2016_accs if x != ref_acc]
+post2016_accs = @pipe df |> filter(row ->row.date > Date(2010,1,1),_) |> (x -> x.acc)   
+post2016_accs = [x for x in post2016_accs if x != ref_acc]
 
-accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
-
-years = [2017,2018,2021,2022]
-accs = [x for x in accs if x != ref_acc]
-accs =[accs; [random_acc_by_year(df, year) for year in years]]
-Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-@info "p-value for the all genomes having the same evolutionary environment" pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
-
-Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accsₐ]
-Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accsₐ]
-X = [ones(length(Oₐₚₒₛᵧₘs)) Oₛᵧₘs]
-y = Oₐₚₒₛᵧₘs
-β = X\y
-@info "β for the linear model of the APOBEC3 group" β
-
-# R\^2  
-ŷ = X*β
-ȳ = mean(y)
-SST = sum((y .- ȳ).^2)
-SSE = sum((ŷ - y).^2)
-@info "R² for the linear model of the APOBEC3 group" 1-SSE/SST
-
-
-# Test 3: test if KJ642617 is common ancestor of human reservoir
-ref_acc = "KJ642617"
-years = [2017,2018,2021,2022]
-ps = []
-for i in 1:100
-    accs_rand = [random_acc_by_year(accsₐ, dates, year) for year in years]
-    push!(ps,  pᵦ₊(accs_rand, ref_acc))
-end
-@info "mean p-value for the null hypothesis KJ642617 is the ancestor of APOBEC3-group" mean(ps)
-# should reject the null hypothesis
-df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
-accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
-accs = [x for x in accs if x != ref_acc]
-Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-
-# use linear regression on Oₐₚₒₛᵧₘs and Oₛᵧₘs
-X = Oₛᵧₘs
-y = Oₐₚₒₛᵧₘs
-β = X\y 
-@info "Linear Regression of Reference Group with Respect to KJ642617" β
-
-# @show β * df.Nₛᵧₘ[1]/df.Nₐₚₒₛᵧₘ[1]
-# @show mean(y - X*β)
-# @show std(y - X*β)
-# calculate R²
-ŷ = X*β
-ȳ = mean(y)
-SST = sum((y .- ȳ).^2)
-SSE = sum((ŷ - y).^2)
-# @show 1-SSE/SST
-@info "R² for the reference group" 1-SSE/SST
-
-accs = accsₐ
-Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-
-# use linear regression on Oₐₚₒₛᵧₘs and Oₛᵧₘs
-X = [ones(length(Oₛᵧₘs)) Oₛᵧₘs]
-y = Oₐₚₒₛᵧₘs
-β = X\y 
-@info "Linear Regression of APOBEC3 Group with Respect to KJ642617" β
-# @show β * df.Nₛᵧₘ[1]/df.Nₐₚₒₛᵧₘ[1]
-# @show mean(y - X*β)
-# @show std(y - X*β)
-# calculate R²
-ŷ = X*β
-ȳ = mean(y)
-SST = sum((y .- ȳ).^2)
-SSE = sum((ŷ - y).^2)
-# @show 1-SSE/SST
-@info "R² for the reference group" 1-SSE/SST
-
-# Test 4: test if MK783028 undergoes the same evolutionary environment as the reference group.
-ref_acc = "KJ642617"
-df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
-
-accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
-accs = [x for x in accs if x != ref_acc]
-accs = [accs; "MK783028"]
-Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-@info "p-value for MK783028 can be joined in reference group using $(ref_acc) as reference" pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
-
-ref_acc = "KJ642617"
-df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
-
-accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
-accs = [x for x in accs if x != ref_acc]
-accs = [accs; "MK783028"]
-Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-@info "p-value for MK783028 can be joined in reference group using $(ref_acc) as reference" pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
-
-ref_acc = "MK783028"
-df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
-accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
-accs = [accs; "MK783028"]
-accs = [x for x in accs if x != ref_acc]
-Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-@info "p-value for MK783028 can be joined in reference group using $(ref_acc) as reference" pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
-
-accs = @pipe df |> filter(row ->row.date > Date(2010,1,1),_) |> (x -> x.acc)
-years = [2017,2018,2021,2022]
-ps = []
-for i in 1:100
-    accs_rand = [random_acc_by_year(accsₐ, dates, year) for year in years]
-    push!(ps,  pᵦ₊(accs_rand, ref_acc))
-end
-@info "p-value for MK783028 is the common ancestor of the APOBEC3 group" mean(ps) minimum(ps)
-
-
-
+plot_df = @pipe df |> filter(row -> row.acc ∈ pre2016_accs, _)
+@show r₊₋ = slope(plot_df.Oₐₚₒₛᵧₘ, plot_df.Oₐₚₒₛᵧₘ⁻¹)
+p₊ = 1 / (1 + r₊₋)
+@show p₊^5

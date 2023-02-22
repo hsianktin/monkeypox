@@ -13,7 +13,8 @@ using Dates
 using BioFetch # 0.2.1
 
 # read meta data
-meta_df = CSV.read("metadata.csv", DataFrame)
+# meta_df = CSV.read("metadata.csv", DataFrame)
+meta_df = CSV.read("meta_data.csv", DataFrame)
 
 records = []
 dates = Date[]
@@ -41,10 +42,11 @@ genes = [gene for gene in ref_genome.genes if feature(gene) == :gene]
 
 @info "start alignment with respect to $(ref_acc)"
 diffs = []
-@showprogress 1 for record in records
+progress = Progress(length(records), 1)
+for (record, acc) in zip(records, accs)
     diff = Array{Any}(undef, length(genes))
     genome_length = length(FASTX.sequence(LongDNA{4}, record))
-    Threads.@threads for i ∈ 1:length(genes)
+    Threads.@threads for i ∈ eachindex(genes)
         gene = genes[i]
         gene_pos = locus(gene).position |> collect
         gene_start = gene_pos[1] |> (x -> minimum([50000 * floor(Int, x/50000) + 1, genome_length]))
@@ -69,6 +71,7 @@ diffs = []
         end
     end
     push!(diffs, diff)
+    next!(progress; showvalues = [(:acc, acc)])
 end
 
 # bug fix for GenomicAnnotations.jl
@@ -80,8 +83,11 @@ function Base.delete!(genes::Vector{Gene})
     nothing
 end
 # construct the genomic annotations
+@info "constructing the genomic annotations"
+progress = Progress(length(records), 1)
+bad_accs = []
 for (acc, record, date, alignment_result) ∈ zip(accs, records, dates, diffs)
-    @show acc
+    # @show acc
     if isfile("data/$(acc).gbk")
         chr = readgbk("data/$(acc).gbk")[1]
     else 
@@ -97,7 +103,8 @@ for (acc, record, date, alignment_result) ∈ zip(accs, records, dates, diffs)
     end
     
     # construct the annotations
-    @info "genetic annotations of $acc not found, constructing"
+    # @info "genetic annotations of $acc not found, constructing"
+    bad_flag = false
     for j ∈ 1:length(genes)
         gene = genes[j]
         gene_pos = locus(gene).position |> collect
@@ -127,7 +134,8 @@ for (acc, record, date, alignment_result) ∈ zip(accs, records, dates, diffs)
                             (x->x[start_nt:end_nt]) |> reverse_complement
         end
         if seq ≠ focal_seq
-            @warn "alignment of gene $j is not correct" seq
+            # @warn "alignment of gene $j is not correct" seq
+            bad_flag = true
         end
         append_flag = (seq[1:3] == dna"ATG") # check if starts with start codon
         if append_flag
@@ -136,12 +144,24 @@ for (acc, record, date, alignment_result) ∈ zip(accs, records, dates, diffs)
             newgene.gene = gene.gene # also stores the name of the gene.
             newgene.locus_tag = gene.locus_tag
         else
-            @warn "gene $j of $acc is not appended" seq
+            # @warn "gene $j of $acc is not appended" seq
+            bad_flag = true
         # end
         end
+    end
+    if bad_flag
+        push!(bad_accs, acc)
     end
     # write to local file
     open(GenBank.Writer, "data/$(acc).gbk") do io
         write(io, chr)
+    end
+    next!(progress; showvalues = [(:acc, acc)])
+end
+
+# save a list of bad accessions
+open("data/bad_accs.txt", "w") do io
+    for acc in bad_accs
+        println(io, acc)
     end
 end

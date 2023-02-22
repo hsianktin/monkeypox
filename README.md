@@ -4,7 +4,7 @@ synonymous, APOBEC3-relevant and -irrelevant mutations.
 
 Due to recent overhaul of API in `BioSequences`, please
 make sure the package version is 3.X by using
-```julia
+```
 pkg>add BioSequences@3
 ```
 

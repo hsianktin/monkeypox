@@ -5,62 +5,29 @@ using LinearAlgebra
 using DataFrames,CSV
 using Dates 
 using Pipe
+ref_acc = "KJ642617"
+df = CSV.read("./data/extended_APOBEC_A2C_synonymous_$(ref_acc).csv", DataFrame)
+pre2016_accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
+pre2016_accs = [x for x in pre2016_accs if x != ref_acc]
+post2016_accs = @pipe df |> filter(row ->row.date > Date(2010,1,1),_) |> (x -> x.acc)
+post2016_accs = [x for x in post2016_accs if x != ref_acc]
 
-function linear(accs, ref_acc)
-    df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
-    Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-    Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-    y = Oₛᵧₘs
-    X = Oₐₚₒₛᵧₘs
-    β = X\y 
-    ŷ = X*β
-    ȳ = mean(y)
-    SST = sum((y .- ȳ).^2)
-    SSE = sum((ŷ - y).^2)
-    R² = 1-SSE/SST
-    return (β, R²)
+function slope(X, y)
+    β = (X'X)\(X'y)
+    return β
 end
 
+## Figure 2A
+plot_df = @pipe df |> filter(row -> row.acc ∈ pre2016_accs, _)
+a₀ = slope(plot_df.Oₛᵧₘ, plot_df.Oₐ₊₋)
 
-function affine(accs, ref_acc)
-    df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
-    Oₐₚₒₛᵧₘs = [df.Oₐ₊₋[df.acc .== acc][1] for acc in accs]
-    Oₛᵧₘs = [df.Oₛᵧₘ[df.acc .== acc][1] for acc in accs]
-    X = [ones(length(Oₐₚₒₛᵧₘs)) Oₐₚₒₛᵧₘs]
-    y = Oₛᵧₘs
-    β = X\y 
-    ŷ = X*β
-    ȳ = mean(y)
-    SST = sum((y .- ȳ).^2)
-    SSE = sum((ŷ - y).^2)
-    R² = 1-SSE/SST
-    return (β[1], β[2], R²)
-end
+plot_df = @pipe df |> filter(row -> row.acc ∈ post2016_accs, _)
+a₁,b = slope([plot_df.Oₛᵧₘ ones(nrow(plot_df))], plot_df.Oₐ₊₋)
 
-include("grouping.jl")
-ref_acc = "KJ642617"
-df = CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame)
+### the intersection of the two lines
+y⁺ = b / (a₀ - a₁)
 
-# subdataframe containing only accsₐ
-dfₐ = @pipe df |> filter(row -> row.acc ∈ accsₐ, _)
-CSV.write("./data/APOBEC_synonymous_$(ref_acc)_APOBEC_group.csv", dfₐ)
-
-
-include("grouping.jl")
-ref_acc = "KJ642617"
-β₀, β₁, R² = affine(accsₐ, ref_acc)
-β′, R²′ = linear(accsᶜ, ref_acc)
-
-# find intersection of y = β₀ + β₁x and y = β′₁x
-x₀ = (β₀)/(β′-β₁)
-@show y₀ = x₀ * β′
-
-data = @pipe CSV.read("./data/APOBEC_synonymous_$(ref_acc).csv", DataFrame) |>
-        filter(row -> row.acc ∈ accsₐ, _)
-x = data.Oₛᵧₘ
-
-X = [ones(length(x)) x]
-y = data.year
+df = CSV.read("./data/lineage_based_clock.csv", DataFrame)
 
 function lm(X,Y)
     β = X\Y
@@ -72,7 +39,29 @@ function lm(X,Y)
     return β, R²
 end
 
-@show β, R² = lm(X,y)
-@show year = floor(Int, β[1] + β[2]*y₀)
-@show month = round(Int, (β[1] + β[2]*y₀ - year)*12)
 
+
+x = df.date .- df.date[1]
+# convert to year
+x = x .|> (x -> (Dates.value.(x))/365.25)
+X = [ones(length(x)) x]
+y = df.Oₛᵧₘ
+
+@show β, R² = lm(X,y)
+# find [1 x⁺] such that [1 x⁺]β = y⁺
+# i.e. 1 * β[1] + x⁺ * β[2] = y⁺
+# i.e. x⁺ = (y⁺ - β[1]) / β[2]
+x⁺ = (y⁺ - β[1]) / β[2]
+Δx = x⁺ * 365.25 |> round |> Dates.Day
+date⁺ = df.date[1] + Δx
+dates = Date.([
+    i for i in 2016:2023])
+xs = [Dates.value(i - df.date[1])/365.25 for i in dates]
+ys = [β[1] + β[2]*i for i in xs]
+y⁺s = [β[1] + β[2]*x⁺ for i in xs]
+
+CSV.write("./data/lineage_based_clock_model.csv", DataFrame(
+    date = dates,
+    Oₛᵧₘ = ys,
+    Oₛᵧₘ⁺ = y⁺s,
+    ))

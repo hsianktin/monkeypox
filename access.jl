@@ -8,11 +8,17 @@ using BioFetch
 using FASTX
 using GenomicAnnotations
 
-acc_df = CSV.read("./data/accession.txt", DataFrame)
 
+@info "starting to download data"
+acc_df = CSV.read("collection_dates.csv", DataFrame)
+acc_string = String[]
 # download using BioFetch
-@showprogress for acc in acc_df.Accession
-    @info "download $(acc)"
+
+progress = Progress(length(acc_df.Accession), 1)
+for acc in acc_df.Accession
+    s = "downloading $(acc)"
+    # gbseq = fetchseq(acc, format=gb)[1]
+    push!(acc_string, acc)
     # download the fasta file
     if !isfile("data/$(acc).fasta")
         # fetch fasta and write to file 
@@ -31,10 +37,12 @@ acc_df = CSV.read("./data/accession.txt", DataFrame)
         # sleep(0.33)
     end
     # avoid being blocked by NCBI
+    next!(progress; showvalues = [(:message, s)])
 end
 
-df = @pipe DataFrame(Accession = acc_df.Accession, Date = (Date∘Year).(acc_df.Year)) |>
-    sort(_, :Date) 
+df = @pipe DataFrame(Accession = acc_string, Date = acc_df.Date) |>
+    sort(_, :Date)
 
 # save the dataframe to a csv file
-CSV.write("metadata.csv", df)
+CSV.write("meta_data.csv", df)
+@info "Done"
