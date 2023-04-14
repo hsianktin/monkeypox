@@ -20,12 +20,12 @@ end
 # @everywhere CONTROL = [([DNA_A, DNA_C], [DNA_A, DNA_T]), ([DNA_G, DNA_T], [DNA_A, DNA_T])]
 # @everywhere control_label = "AC2AT"
 @everywhere CONTROL = [
-    # ([DNA_A], [DNA_C]), 
+    ([DNA_A], [DNA_C]), 
     ([DNA_T], [DNA_G]),
     # ([DNA_A], [DNA_T]), 
-    ([DNA_T], [DNA_A]),
+    # ([DNA_T], [DNA_A]),
     # ([DNA_A], [DNA_G]), 
-    ([DNA_T], [DNA_C])
+    # ([DNA_T], [DNA_C]),
     ]
 @everywhere control_label = "A2C"
 

@@ -3,7 +3,7 @@ DEFINITION  Monkeypox virus isolate Monkeypox/PT0035/2022, complete genome.
 ACCESSION   ON843172
 VERSION     ON843172.1
 KEYWORDS    .
-SOURCE      Monkeypox virus (monkeypox)
+SOURCE      Monkeypox virus
   ORGANISM  Monkeypox virus
             Viruses; Varidnaviria; Bamfordvirae; Nucleocytoviricota;
             Pokkesviricetes; Chitovirales; Poxviridae; Chordopoxvirinae;
@@ -31,542 +31,542 @@ FEATURES             Location/Qualifiers
                      /country="Portugal"
                      /collection_date="27-May-2022"
      aligned_gene    complement(843..1583)
+                     /gene="OPG001"
                      /locus_tag="NBT03_gp001"
-                     /gene="OPG001"
      aligned_gene    complement(1710..2759)
+                     /gene="OPG002"
                      /locus_tag="NBT03_gp002"
-                     /gene="OPG002"
      aligned_gene    complement(2849..4615)
+                     /gene="OPG003"
                      /locus_tag="NBT03_gp003"
-                     /gene="OPG003"
      aligned_gene    complement(4851..6164)
+                     /gene="OPG015"
                      /locus_tag="NBT03_gp004"
-                     /gene="OPG015"
      aligned_gene    7588..8016
-                     /locus_tag="NBT03_gp005"
                      /gene="OPG019"
+                     /locus_tag="NBT03_gp005"
      aligned_gene    9595..10323
-                     /locus_tag="NBT03_gp006"
                      /gene="OPG021"
+                     /locus_tag="NBT03_gp006"
      aligned_gene    complement(10486..10866)
-                     /locus_tag="NBT03_gp007"
                      /gene="OPG022"
+                     /locus_tag="NBT03_gp007"
      aligned_gene    complement(10926..12908)
-                     /locus_tag="NBT03_gp008"
                      /gene="OPG023"
+                     /locus_tag="NBT03_gp008"
      aligned_gene    complement(13042..13236)
-                     /locus_tag="NBT03_gp009"
                      /gene="OPG024"
+                     /locus_tag="NBT03_gp009"
      aligned_gene    complement(13383..15275)
-                     /locus_tag="NBT03_gp010"
                      /gene="OPG025"
+                     /locus_tag="NBT03_gp010"
      aligned_gene    complement(15933..16385)
-                     /locus_tag="NBT03_gp011"
                      /gene="OPG027"
+                     /locus_tag="NBT03_gp011"
      aligned_gene    complement(16610..17077)
-                     /locus_tag="NBT03_gp012"
                      /gene="OPG029"
+                     /locus_tag="NBT03_gp012"
      aligned_gene    complement(17221..17841)
-                     /locus_tag="NBT03_gp013"
                      /gene="OPG030"
+                     /locus_tag="NBT03_gp013"
      aligned_gene    complement(17886..18836)
-                     /locus_tag="NBT03_gp014"
                      /gene="OPG031"
+                     /locus_tag="NBT03_gp014"
      aligned_gene    complement(19369..20013)
-                     /locus_tag="NBT03_gp015"
                      /gene="OPG034"
+                     /locus_tag="NBT03_gp015"
      aligned_gene    complement(20059..20412)
-                     /locus_tag="NBT03_gp016"
                      /gene="OPG035"
+                     /locus_tag="NBT03_gp016"
      aligned_gene    complement(20539..21072)
-                     /locus_tag="NBT03_gp017"
                      /gene="OPG036"
+                     /locus_tag="NBT03_gp017"
      aligned_gene    complement(21113..22441)
-                     /locus_tag="NBT03_gp018"
                      /gene="OPG037"
+                     /locus_tag="NBT03_gp018"
      aligned_gene    complement(22505..23167)
-                     /locus_tag="NBT03_gp019"
                      /gene="OPG038"
+                     /locus_tag="NBT03_gp019"
      aligned_gene    complement(23272..24126)
-                     /locus_tag="NBT03_gp020"
                      /gene="OPG039"
+                     /locus_tag="NBT03_gp020"
      aligned_gene    complement(24359..25486)
-                     /locus_tag="NBT03_gp021"
                      /gene="OPG040"
+                     /locus_tag="NBT03_gp021"
      aligned_gene    complement(25831..27105)
-                     /locus_tag="NBT03_gp022"
                      /gene="OPG042"
+                     /locus_tag="NBT03_gp022"
      aligned_gene    complement(27133..27963)
-                     /locus_tag="NBT03_gp023"
                      /gene="OPG043"
+                     /locus_tag="NBT03_gp023"
      aligned_gene    28099..28548
-                     /locus_tag="NBT03_gp024"
                      /gene="OPG044"
+                     /locus_tag="NBT03_gp024"
      aligned_gene    complement(28611..29270)
-                     /locus_tag="NBT03_gp025"
                      /gene="OPG045"
+                     /locus_tag="NBT03_gp025"
      aligned_gene    complement(29282..29737)
-                     /locus_tag="NBT03_gp026"
                      /gene="OPG046"
+                     /locus_tag="NBT03_gp026"
      aligned_gene    complement(29754..31202)
-                     /locus_tag="NBT03_gp027"
                      /gene="OPG047"
+                     /locus_tag="NBT03_gp027"
      aligned_gene    complement(31213..32172)
-                     /locus_tag="NBT03_gp028"
                      /gene="OPG048"
+                     /locus_tag="NBT03_gp028"
      aligned_gene    complement(32203..33159)
-                     /locus_tag="NBT03_gp029"
                      /gene="OPG049"
+                     /locus_tag="NBT03_gp029"
      aligned_gene    complement(33189..33416)
-                     /locus_tag="NBT03_gp030"
                      /gene="OPG050"
+                     /locus_tag="NBT03_gp030"
      aligned_gene    complement(33433..33657)
-                     /locus_tag="NBT03_gp031"
                      /gene="OPG051"
+                     /locus_tag="NBT03_gp031"
      aligned_gene    complement(33809..34003)
-                     /locus_tag="NBT03_gp032"
                      /gene="OPG052"
+                     /locus_tag="NBT03_gp032"
      aligned_gene    complement(34060..34698)
-                     /locus_tag="NBT03_gp033"
                      /gene="OPG053"
+                     /locus_tag="NBT03_gp033"
      aligned_gene    complement(34685..36004)
-                     /locus_tag="NBT03_gp034"
                      /gene="OPG054"
+                     /locus_tag="NBT03_gp034"
      aligned_gene    complement(36027..37091)
-                     /locus_tag="NBT03_gp035"
                      /gene="OPG055"
+                     /locus_tag="NBT03_gp035"
      aligned_gene    complement(37135..39042)
-                     /locus_tag="NBT03_gp036"
                      /gene="OPG056"
+                     /locus_tag="NBT03_gp036"
      aligned_gene    complement(39085..40203)
-                     /locus_tag="NBT03_gp037"
                      /gene="OPG057"
+                     /locus_tag="NBT03_gp037"
      aligned_gene    complement(40221..40442)
-                     /locus_tag="NBT03_gp038"
                      /gene="OPG058"
+                     /locus_tag="NBT03_gp038"
      aligned_gene    complement(40492..40641)
-                     /locus_tag="NBT03_gp039"
                      /gene="OPG059"
+                     /locus_tag="NBT03_gp039"
      aligned_gene    complement(40714..41190)
-                     /locus_tag="NBT03_gp040"
                      /gene="OPG060"
+                     /locus_tag="NBT03_gp040"
      aligned_gene    complement(41197..41892)
-                     /locus_tag="NBT03_gp041"
                      /gene="OPG061"
+                     /locus_tag="NBT03_gp041"
      aligned_gene    41955..42260
-                     /locus_tag="NBT03_gp042"
                      /gene="OPG062"
+                     /locus_tag="NBT03_gp042"
      aligned_gene    complement(42257..43696)
-                     /locus_tag="NBT03_gp043"
                      /gene="OPG063"
+                     /locus_tag="NBT03_gp043"
      aligned_gene    complement(43693..45906)
-                     /locus_tag="NBT03_gp044"
                      /gene="OPG064"
+                     /locus_tag="NBT03_gp044"
      aligned_gene    complement(46030..46491)
-                     /locus_tag="NBT03_gp045"
                      /gene="OPG065"
+                     /locus_tag="NBT03_gp045"
      aligned_gene    complement(46657..47436)
-                     /locus_tag="NBT03_gp046"
                      /gene="OPG066"
+                     /locus_tag="NBT03_gp046"
      aligned_gene    48209..49912
-                     /locus_tag="NBT03_gp047"
                      /gene="OPG068"
+                     /locus_tag="NBT03_gp047"
      aligned_gene    49994..50494
-                     /locus_tag="NBT03_gp048"
                      /gene="OPG069"
+                     /locus_tag="NBT03_gp048"
      aligned_gene    50598..51419
-                     /locus_tag="NBT03_gp049"
                      /gene="OPG070"
+                     /locus_tag="NBT03_gp049"
      aligned_gene    complement(51426..54446)
-                     /locus_tag="NBT03_gp050"
                      /gene="OPG071"
+                     /locus_tag="NBT03_gp050"
      aligned_gene    54478..54765
-                     /locus_tag="NBT03_gp051"
                      /gene="OPG072"
+                     /locus_tag="NBT03_gp051"
      aligned_gene    complement(54760..55149)
-                     /locus_tag="NBT03_gp052"
                      /gene="OPG073"
+                     /locus_tag="NBT03_gp052"
      aligned_gene    complement(55136..57133)
-                     /locus_tag="NBT03_gp053"
                      /gene="OPG074"
+                     /locus_tag="NBT03_gp053"
      aligned_gene    complement(57180..57506)
-                     /locus_tag="NBT03_gp054"
                      /gene="OPG075"
+                     /locus_tag="NBT03_gp054"
      aligned_gene    complement(57531..57638)
-                     /locus_tag="NBT03_gp055"
                      /gene="OPG076"
+                     /locus_tag="NBT03_gp055"
      aligned_gene    complement(57653..58591)
-                     /locus_tag="NBT03_gp056"
                      /gene="OPG077"
+                     /locus_tag="NBT03_gp056"
      aligned_gene    complement(58598..58819)
-                     /locus_tag="NBT03_gp057"
                      /gene="OPG078"
+                     /locus_tag="NBT03_gp057"
      aligned_gene    complement(58820..59629)
-                     /locus_tag="NBT03_gp058"
                      /gene="OPG079"
+                     /locus_tag="NBT03_gp058"
      aligned_gene    complement(59711..62026)
-                     /locus_tag="NBT03_gp059"
                      /gene="OPG080"
+                     /locus_tag="NBT03_gp059"
      aligned_gene    complement(62054..62293)
-                     /locus_tag="NBT03_gp060"
                      /gene="OPG081"
+                     /locus_tag="NBT03_gp060"
      aligned_gene    complement(62312..63460)
-                     /locus_tag="NBT03_gp061"
                      /gene="OPG082"
+                     /locus_tag="NBT03_gp061"
      aligned_gene    complement(63453..64724)
-                     /locus_tag="NBT03_gp062"
                      /gene="OPG083"
+                     /locus_tag="NBT03_gp062"
      aligned_gene    64730..66760
-                     /locus_tag="NBT03_gp063"
                      /gene="OPG084"
+                     /locus_tag="NBT03_gp063"
      aligned_gene    complement(66764..68539)
-                     /locus_tag="NBT03_gp064"
                      /gene="OPG085"
+                     /locus_tag="NBT03_gp064"
      aligned_gene    complement(68536..68871)
-                     /locus_tag="NBT03_gp065"
                      /gene="OPG086"
+                     /locus_tag="NBT03_gp065"
      aligned_gene    68865..69527
-                     /locus_tag="NBT03_gp066"
                      /gene="OPG087"
+                     /locus_tag="NBT03_gp066"
      aligned_gene    complement(69497..69871)
-                     /locus_tag="NBT03_gp067"
                      /gene="OPG088"
+                     /locus_tag="NBT03_gp067"
      aligned_gene    69874..71178
-                     /locus_tag="NBT03_gp068"
                      /gene="OPG089"
+                     /locus_tag="NBT03_gp068"
      aligned_gene    71187..71378
-                     /locus_tag="NBT03_gp069"
                      /gene="OPG090"
+                     /locus_tag="NBT03_gp069"
      aligned_gene    71378..71875
-                     /locus_tag="NBT03_gp070"
                      /gene="OPG091"
+                     /locus_tag="NBT03_gp070"
      aligned_gene    complement(71840..72955)
-                     /locus_tag="NBT03_gp071"
                      /gene="OPG092"
+                     /locus_tag="NBT03_gp071"
      aligned_gene    72986..73768
-                     /locus_tag="NBT03_gp072"
                      /gene="OPG093"
+                     /locus_tag="NBT03_gp072"
      aligned_gene    73788..74810
-                     /locus_tag="NBT03_gp073"
                      /gene="OPG094"
+                     /locus_tag="NBT03_gp073"
      aligned_gene    74811..75563
-                     /locus_tag="NBT03_gp074"
                      /gene="OPG095"
+                     /locus_tag="NBT03_gp074"
      aligned_gene    75595..75873
-                     /locus_tag="NBT03_gp075"
                      /gene="OPG096"
+                     /locus_tag="NBT03_gp075"
      aligned_gene    complement(75849..76883)
-                     /locus_tag="NBT03_gp076"
                      /gene="OPG097"
+                     /locus_tag="NBT03_gp076"
      aligned_gene    76908..77663
-                     /locus_tag="NBT03_gp077"
                      /gene="OPG098"
+                     /locus_tag="NBT03_gp077"
      aligned_gene    77673..78059
-                     /locus_tag="NBT03_gp078"
                      /gene="OPG099"
+                     /locus_tag="NBT03_gp078"
      aligned_gene    78016..78474
-                     /locus_tag="NBT03_gp079"
                      /gene="OPG100"
+                     /locus_tag="NBT03_gp079"
      aligned_gene    78494..79027
-                     /locus_tag="NBT03_gp080"
                      /gene="OPG101"
+                     /locus_tag="NBT03_gp080"
      aligned_gene    79093..80094
-                     /locus_tag="NBT03_gp081"
                      /gene="OPG102"
+                     /locus_tag="NBT03_gp081"
      aligned_gene    80009..80566
-                     /locus_tag="NBT03_gp082"
                      /gene="OPG103"
+                     /locus_tag="NBT03_gp082"
      aligned_gene    complement(80626..81027)
-                     /locus_tag="NBT03_gp083"
                      /gene="OPG104"
+                     /locus_tag="NBT03_gp083"
      aligned_gene    81134..84994
-                     /locus_tag="NBT03_gp084"
                      /gene="OPG105"
+                     /locus_tag="NBT03_gp084"
      aligned_gene    complement(84991..85506)
-                     /locus_tag="NBT03_gp085"
                      /gene="OPG106"
+                     /locus_tag="NBT03_gp085"
      aligned_gene    85520..86089
-                     /locus_tag="NBT03_gp086"
                      /gene="OPG107"
+                     /locus_tag="NBT03_gp086"
      aligned_gene    complement(86093..87067)
-                     /locus_tag="NBT03_gp087"
                      /gene="OPG108"
+                     /locus_tag="NBT03_gp087"
      aligned_gene    complement(87068..89455)
-                     /locus_tag="NBT03_gp088"
                      /gene="OPG109"
+                     /locus_tag="NBT03_gp088"
      aligned_gene    89640..90272
-                     /locus_tag="NBT03_gp089"
                      /gene="OPG110"
+                     /locus_tag="NBT03_gp089"
      aligned_gene    90273..91217
-                     /locus_tag="NBT03_gp090"
                      /gene="OPG111"
+                     /locus_tag="NBT03_gp090"
      aligned_gene    91255..91695
-                     /locus_tag="NBT03_gp091"
                      /gene="OPG112"
+                     /locus_tag="NBT03_gp091"
      aligned_gene    91739..94276
-                     /locus_tag="NBT03_gp092"
                      /gene="OPG113"
+                     /locus_tag="NBT03_gp092"
      aligned_gene    complement(94235..94675)
-                     /locus_tag="NBT03_gp093"
                      /gene="OPG114"
+                     /locus_tag="NBT03_gp093"
      aligned_gene    94668..95369
-                     /locus_tag="NBT03_gp094"
                      /gene="OPG115"
+                     /locus_tag="NBT03_gp094"
      aligned_gene    95369..96025
-                     /locus_tag="NBT03_gp095"
                      /gene="OPG116"
+                     /locus_tag="NBT03_gp095"
      aligned_gene    96057..98414
-                     /locus_tag="NBT03_gp096"
                      /gene="OPG117"
+                     /locus_tag="NBT03_gp096"
      aligned_gene    98454..100367
-                     /locus_tag="NBT03_gp097"
                      /gene="OPG118"
+                     /locus_tag="NBT03_gp097"
      aligned_gene    100394..100879
-                     /locus_tag="NBT03_gp098"
                      /gene="OPG119"
+                     /locus_tag="NBT03_gp098"
      aligned_gene    complement(100842..101756)
-                     /locus_tag="NBT03_gp099"
                      /gene="OPG120"
+                     /locus_tag="NBT03_gp099"
      aligned_gene    101798..102439
-                     /locus_tag="NBT03_gp100"
                      /gene="OPG121"
+                     /locus_tag="NBT03_gp100"
      aligned_gene    102436..103182
-                     /locus_tag="NBT03_gp101"
                      /gene="OPG122"
+                     /locus_tag="NBT03_gp101"
      aligned_gene    complement(103183..105078)
-                     /locus_tag="NBT03_gp102"
                      /gene="OPG123"
+                     /locus_tag="NBT03_gp102"
      aligned_gene    complement(105113..105976)
-                     /locus_tag="NBT03_gp103"
                      /gene="OPG124"
+                     /locus_tag="NBT03_gp103"
      aligned_gene    complement(106007..107662)
-                     /locus_tag="NBT03_gp104"
                      /gene="OPG125"
+                     /locus_tag="NBT03_gp104"
      aligned_gene    complement(107686..108138)
-                     /locus_tag="NBT03_gp105"
                      /gene="OPG126"
+                     /locus_tag="NBT03_gp105"
      aligned_gene    complement(108159..108833)
-                     /locus_tag="NBT03_gp106"
                      /gene="OPG127"
+                     /locus_tag="NBT03_gp106"
      aligned_gene    complement(108830..109063)
-                     /locus_tag="NBT03_gp107"
                      /gene="OPG128"
+                     /locus_tag="NBT03_gp107"
      aligned_gene    complement(109078..111012)
-                     /locus_tag="NBT03_gp108"
                      /gene="OPG129"
+                     /locus_tag="NBT03_gp108"
      aligned_gene    complement(111065..111910)
-                     /locus_tag="NBT03_gp109"
                      /gene="OPG130"
+                     /locus_tag="NBT03_gp109"
      aligned_gene    111948..112433
-                     /locus_tag="NBT03_gp110"
                      /gene="OPG131"
+                     /locus_tag="NBT03_gp110"
      aligned_gene    complement(112430..113548)
-                     /locus_tag="NBT03_gp111"
                      /gene="OPG132"
+                     /locus_tag="NBT03_gp111"
      aligned_gene    complement(113572..115704)
-                     /locus_tag="NBT03_gp112"
                      /gene="OPG133"
+                     /locus_tag="NBT03_gp112"
      aligned_gene    115758..116636
-                     /locus_tag="NBT03_gp113"
                      /gene="OPG134"
+                     /locus_tag="NBT03_gp113"
      aligned_gene    complement(116617..116919)
-                     /locus_tag="NBT03_gp114"
                      /gene="OPG135"
+                     /locus_tag="NBT03_gp114"
      aligned_gene    complement(116920..119595)
-                     /locus_tag="NBT03_gp115"
                      /gene="OPG136"
+                     /locus_tag="NBT03_gp115"
      aligned_gene    119610..120566
-                     /locus_tag="NBT03_gp116"
                      /gene="OPG137"
+                     /locus_tag="NBT03_gp116"
      aligned_gene    complement(120568..121140)
-                     /locus_tag="NBT03_gp117"
                      /gene="OPG138"
+                     /locus_tag="NBT03_gp117"
      aligned_gene    complement(121164..121376)
-                     /locus_tag="NBT03_gp118"
                      /gene="OPG139"
+                     /locus_tag="NBT03_gp118"
      aligned_gene    complement(121482..121754)
-                     /locus_tag="NBT03_gp119"
                      /gene="OPG140"
+                     /locus_tag="NBT03_gp119"
      aligned_gene    complement(121771..121932)
-                     /locus_tag="NBT03_gp120"
                      /gene="OPG141"
+                     /locus_tag="NBT03_gp120"
      aligned_gene    complement(121922..122206)
-                     /locus_tag="NBT03_gp121"
                      /gene="OPG142"
+                     /locus_tag="NBT03_gp121"
      aligned_gene    complement(122190..123323)
-                     /locus_tag="NBT03_gp122"
                      /gene="OPG143"
+                     /locus_tag="NBT03_gp122"
      aligned_gene    complement(123326..123940)
-                     /locus_tag="NBT03_gp123"
                      /gene="OPG144"
+                     /locus_tag="NBT03_gp123"
      aligned_gene    123955..125433
-                     /locus_tag="NBT03_gp124"
                      /gene="OPG145"
+                     /locus_tag="NBT03_gp124"
      aligned_gene    complement(125414..125647)
-                     /locus_tag="NBT03_gp125"
                      /gene="OPG146"
+                     /locus_tag="NBT03_gp125"
      aligned_gene    complement(125648..125995)
-                     /locus_tag="NBT03_gp126"
                      /gene="OPG147"
+                     /locus_tag="NBT03_gp126"
      aligned_gene    125994..127274
-                     /locus_tag="NBT03_gp127"
                      /gene="OPG148"
+                     /locus_tag="NBT03_gp127"
      aligned_gene    127204..127767
-                     /locus_tag="NBT03_gp128"
                      /gene="OPG149"
+                     /locus_tag="NBT03_gp128"
      aligned_gene    127787..128935
-                     /locus_tag="NBT03_gp129"
                      /gene="OPG150"
+                     /locus_tag="NBT03_gp129"
      aligned_gene    128932..132426
-                     /locus_tag="NBT03_gp130"
                      /gene="OPG151"
+                     /locus_tag="NBT03_gp130"
      aligned_gene    complement(136138..137667)
-                     /locus_tag="NBT03_gp131"
                      /gene="OPG153"
+                     /locus_tag="NBT03_gp131"
      aligned_gene    complement(137718..138050)
-                     /locus_tag="NBT03_gp132"
                      /gene="OPG154"
+                     /locus_tag="NBT03_gp132"
      aligned_gene    complement(138051..138491)
-                     /locus_tag="NBT03_gp133"
                      /gene="OPG155"
+                     /locus_tag="NBT03_gp133"
      aligned_gene    complement(138492..139409)
-                     /locus_tag="NBT03_gp134"
                      /gene="OPG156"
+                     /locus_tag="NBT03_gp134"
      aligned_gene    complement(139372..139608)
-                     /locus_tag="NBT03_gp135"
                      /gene="OPG157"
+                     /locus_tag="NBT03_gp135"
      aligned_gene    complement(139641..139769)
-                     /locus_tag="NBT03_gp136"
                      /gene="OPG158"
+                     /locus_tag="NBT03_gp136"
      aligned_gene    139768..140205
-                     /locus_tag="NBT03_gp137"
                      /gene="OPG159"
+                     /locus_tag="NBT03_gp137"
      aligned_gene    complement(140172..141074)
-                     /locus_tag="NBT03_gp138"
                      /gene="OPG160"
+                     /locus_tag="NBT03_gp138"
      aligned_gene    141102..141647
-                     /locus_tag="NBT03_gp139"
                      /gene="OPG161"
+                     /locus_tag="NBT03_gp139"
      aligned_gene    141652..142158
-                     /locus_tag="NBT03_gp140"
                      /gene="OPG162"
+                     /locus_tag="NBT03_gp140"
      aligned_gene    142202..142732
-                     /locus_tag="NBT03_gp141"
                      /gene="OPG163"
+                     /locus_tag="NBT03_gp141"
      aligned_gene    142778..143464
-                     /locus_tag="NBT03_gp142"
                      /gene="OPG164"
+                     /locus_tag="NBT03_gp142"
      aligned_gene    143516..144322
-                     /locus_tag="NBT03_gp143"
                      /gene="OPG165"
+                     /locus_tag="NBT03_gp143"
      aligned_gene    144398..144577
-                     /locus_tag="NBT03_gp144"
                      /gene="OPG166"
+                     /locus_tag="NBT03_gp144"
      aligned_gene    complement(144574..145407)
-                     /locus_tag="NBT03_gp145"
                      /gene="OPG167"
+                     /locus_tag="NBT03_gp145"
      aligned_gene    complement(146113..146778)
-                     /locus_tag="NBT03_gp146"
                      /gene="OPG170"
+                     /locus_tag="NBT03_gp146"
      aligned_gene    146988..147389
-                     /locus_tag="NBT03_gp147"
                      /gene="OPG171"
+                     /locus_tag="NBT03_gp147"
      aligned_gene    147427..148017
-                     /locus_tag="NBT03_gp148"
                      /gene="OPG172"
+                     /locus_tag="NBT03_gp148"
      aligned_gene    148037..148261
-                     /locus_tag="NBT03_gp149"
                      /gene="OPG173"
+                     /locus_tag="NBT03_gp149"
      aligned_gene    complement(148355..149395)
-                     /locus_tag="NBT03_gp150"
                      /gene="OPG174"
+                     /locus_tag="NBT03_gp150"
      aligned_gene    149442..149819
-                     /locus_tag="NBT03_gp151"
                      /gene="OPG175"
+                     /locus_tag="NBT03_gp151"
      aligned_gene    149809..150531
-                     /locus_tag="NBT03_gp152"
                      /gene="OPG176"
+                     /locus_tag="NBT03_gp152"
      aligned_gene    151509..152123
-                     /locus_tag="NBT03_gp153"
                      /gene="OPG178"
+                     /locus_tag="NBT03_gp153"
      aligned_gene    152692..154371
-                     /locus_tag="NBT03_gp154"
                      /gene="OPG180"
+                     /locus_tag="NBT03_gp154"
      aligned_gene    154412..155416
-                     /locus_tag="NBT03_gp155"
                      /gene="OPG181"
+                     /locus_tag="NBT03_gp155"
      aligned_gene    158917..159858
-                     /locus_tag="NBT03_gp156"
                      /gene="OPG185"
+                     /locus_tag="NBT03_gp156"
      aligned_gene    160622..161533
-                     /locus_tag="NBT03_gp157"
                      /gene="OPG187"
+                     /locus_tag="NBT03_gp157"
      aligned_gene    161596..163107
-                     /locus_tag="NBT03_gp158"
                      /gene="OPG188"
+                     /locus_tag="NBT03_gp158"
      aligned_gene    163333..165018
-                     /locus_tag="NBT03_gp159"
                      /gene="OPG189"
+                     /locus_tag="NBT03_gp159"
      aligned_gene    165122..166075
-                     /locus_tag="NBT03_gp160"
                      /gene="OPG190"
+                     /locus_tag="NBT03_gp160"
      aligned_gene    166161..166667
-                     /locus_tag="NBT03_gp161"
                      /gene="OPG191"
+                     /locus_tag="NBT03_gp161"
      aligned_gene    166731..167279
-                     /locus_tag="NBT03_gp162"
                      /gene="OPG192"
+                     /locus_tag="NBT03_gp162"
      aligned_gene    167334..168137
-                     /locus_tag="NBT03_gp163"
                      /gene="OPG193"
+                     /locus_tag="NBT03_gp163"
      aligned_gene    168230..168895
-                     /locus_tag="NBT03_gp164"
                      /gene="OPG195"
+                     /locus_tag="NBT03_gp164"
      aligned_gene    169670..169972
-                     /locus_tag="NBT03_gp165"
                      /gene="OPG197"
+                     /locus_tag="NBT03_gp165"
      aligned_gene    170038..170886
-                     /locus_tag="NBT03_gp166"
                      /gene="OPG198"
+                     /locus_tag="NBT03_gp166"
      aligned_gene    170988..172022
-                     /locus_tag="NBT03_gp167"
                      /gene="OPG199"
+                     /locus_tag="NBT03_gp167"
      aligned_gene    172150..172599
-                     /locus_tag="NBT03_gp168"
                      /gene="OPG200"
+                     /locus_tag="NBT03_gp168"
      aligned_gene    174608..175663
-                     /locus_tag="NBT03_gp169"
                      /gene="OPG204"
+                     /locus_tag="NBT03_gp169"
      aligned_gene    175732..178095
-                     /locus_tag="NBT03_gp170"
                      /gene="OPG205"
+                     /locus_tag="NBT03_gp170"
      aligned_gene    179270..180343
-                     /locus_tag="NBT03_gp171"
                      /gene="OPG208"
+                     /locus_tag="NBT03_gp171"
      aligned_gene    180522..181094
-                     /locus_tag="NBT03_gp172"
                      /gene="OPG209"
+                     /locus_tag="NBT03_gp172"
      aligned_gene    181360..187002
-                     /locus_tag="NBT03_gp173"
                      /gene="OPG210"
+                     /locus_tag="NBT03_gp173"
      aligned_gene    189203..189664
-                     /locus_tag="NBT03_gp174"
                      /gene="OPG005"
+                     /locus_tag="NBT03_gp174"
      aligned_gene    190414..190944
-                     /locus_tag="NBT03_gp175"
                      /gene="OPG016"
+                     /locus_tag="NBT03_gp175"
      aligned_gene    191058..192371
-                     /locus_tag="NBT03_gp176"
                      /gene="OPG015"
+                     /locus_tag="NBT03_gp176"
      aligned_gene    192607..194373
-                     /locus_tag="NBT03_gp177"
                      /gene="OPG003"
+                     /locus_tag="NBT03_gp177"
      aligned_gene    194463..195512
-                     /locus_tag="NBT03_gp178"
                      /gene="OPG002"
+                     /locus_tag="NBT03_gp178"
      aligned_gene    195639..196379
-                     /locus_tag="NBT03_gp179"
                      /gene="OPG001"
+                     /locus_tag="NBT03_gp179"
 
 ORIGIN
        1 TAATTAATTT AATTTTACTA TTTTATTTAG TGTCTAGAAA AAAATGTGTG ACCCACGACC

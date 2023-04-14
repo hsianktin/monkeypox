@@ -5,7 +5,7 @@ VERSION     OP225968.1
 DBLINK      BioProject: PRJNA849962
             BioSample: SAMN30323027
 KEYWORDS    .
-SOURCE      Monkeypox virus (monkeypox)
+SOURCE      Monkeypox virus
   ORGANISM  Monkeypox virus
             Viruses; Varidnaviria; Bamfordvirae; Nucleocytoviricota;
             Pokkesviricetes; Chitovirales; Poxviridae; Chordopoxvirinae;

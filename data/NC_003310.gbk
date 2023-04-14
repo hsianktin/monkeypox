@@ -1,10 +1,10 @@
-LOCUS       NC_003310             196858 bp    DNA     linear   VRL 21-OCT-2022
+LOCUS       NC_003310             196858 bp    DNA     linear   VRL 18-NOV-2022
 DEFINITION  Monkeypox virus, complete genome.
 ACCESSION   NC_003310
 VERSION     NC_003310.1
 DBLINK      BioProject: PRJNA485481
 KEYWORDS    RefSeq.
-SOURCE      Monkeypox virus (monkeypox)
+SOURCE      Monkeypox virus
   ORGANISM  Monkeypox virus
             Viruses; Varidnaviria; Bamfordvirae; Nucleocytoviricota;
             Pokkesviricetes; Chitovirales; Poxviridae; Chordopoxvirinae;
@@ -3667,22 +3667,8 @@ FEATURES             Location/Qualifiers
                      /note="OPG212"
      misc_feature    187508..187985
                      /note="OPG213"
-     gene            188372..188689
-                     /db_xref="GeneID:929037"
-                     /gene="OPG214"
-                     /locus_tag="MPXV_gp175"
-     CDS             188372..188689
-                     /db_xref="GeneID:929037"
-                     /note="Old product: R1R; Golgi localized, vGAAP,   
-                     supresses apoptosis"
-                     /gene="OPG214"
-                     /locus_tag="MPXV_gp175"
-                     /codon_start=1
-                     /product="N-methyl D-aspartate receptor homolog"
-                     /protein_id="NP_536611.1"
-                     /translation="MFGSIGLIFALTLHRHKHPLNLYLLCGFTLLESLTLASVVTFYD
-                     ARIVIQAFMLTTAVFLALTTCTLQSKRDFSKLVTGLFAAFWILILSGVLRIKFKIELI
-                     KNI"
+     misc_feature    188150..188656
+                     /note="OPG214"
      gene            188894..189355
                      /db_xref="GeneID:929035"
                      /gene="OPG005"
