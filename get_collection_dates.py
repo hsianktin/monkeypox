@@ -33,21 +33,22 @@ def convert_date(date_str):
 Entrez.email = "xiangting.li@ucla.edu"
 
 # read metadata.csv file and get a list of accession numbers
+# df = pd.read_csv('accession_marburg.csv')
 df = pd.read_csv('accessions.csv')
 accessions = df['Accession'].to_list()
 
-# read meta_extra_data.csv file and get a list of accession numbers
-df = pd.read_csv('accessions_extra.csv')
-extra_accessions = df['Accession'].to_list()
+# # read meta_extra_data.csv file and get a list of accession numbers
+# df = pd.read_csv('accessions_extra.csv')
+# extra_accessions = df['Accession'].to_list()
 
-# remove duplicates of the form 'MT123456.1' and 'MT123456'
-# in the extra_accessions list, the accession numbers are in the form 'MT123456.1'
-# in the accessions list, the accession numbers are in the form 'MT123456'
-# so we remove the duplicates
-extra_accessions = [acc[:-2] for acc in extra_accessions if acc[:-2] not in accessions]
+# # remove duplicates of the form 'MT123456.1' and 'MT123456'
+# # in the extra_accessions list, the accession numbers are in the form 'MT123456.1'
+# # in the accessions list, the accession numbers are in the form 'MT123456'
+# # so we remove the duplicates
+# extra_accessions = [acc[:-2] for acc in extra_accessions if acc[:-2] not in accessions]
 
-# combine the two lists
-accessions = accessions + extra_accessions
+# # combine the two lists
+# accessions = accessions + extra_accessions
 
 
 

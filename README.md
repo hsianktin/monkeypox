@@ -7,13 +7,16 @@ make sure the package version is 3.X by using
 ```
 pkg>add BioSequences@3
 ```
-
+Python scripts are written in Python 3.7.4, and requires the following packages:
+- Biopython
+- pandas
+- csv
 
 
 # Workflow
 Data preprocessing based on accession numbers.
 ```
-accession.txt |> access.jl  |> data, metadata.csv
+accession.txt |> get_collection_dates.py |> collection_dates.csv |> access.jl  |> data, metadata.csv
 ```
 
 ## Alignment
