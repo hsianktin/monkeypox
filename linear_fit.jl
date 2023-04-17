@@ -18,6 +18,12 @@ function linear_regression(X, y)
     rss = sum(residuals.^2) / (n - p)
     se = sqrt.(diag(rss * inv(X'X)))
     
+    # compute R^2
+    y_mean = mean(y)
+    numerator = sum((y .- X * beta).^2)
+    denominator = sum((y .- y_mean).^2)
+    rse = 1 - numerator / denominator
+
     return beta, se, sqrt(rss)
 end
 
