@@ -25,10 +25,10 @@ mutable struct Genotype
 end
 
 species = Dict{Genotype, Int}() # map genotype to population size
-
+n_species = 0 # number of species
 # birth rate
-function β(β₀::Float64)
-    return β₀ 
+function β(β₀::Float64, s::Float64, smax::Float64, g::Genotype)
+    return β₀ * selection(g,s) /smax
 end
 
 # selection coefficient
@@ -38,7 +38,7 @@ end
 
 # death rate with selection; more APOBEC3 mutations, lower death rate
 function μ(μ₀::Float64, g::Genotype, population::Int, s::Float64, K, β₀::Float64)
-    return  (μ₀ + β₀ * population / K) / selection(g, s)
+    return  (μ₀ + β₀ * population / K)
 end
 
 # mutation probability
@@ -55,9 +55,12 @@ end
 # time evolving operator 
 function 𝚍species╱𝚍t!(species, t, Par::Parameters)
     # birth rate 
-    total_birth_rate = ∑([β(Par.β₀) * population for (g, population) in species])
+    smax = maximum([selection(g, Par.s) for (g, population) in species])
+    total_population = ∑([population for (g, population) in species])
+    total_birth_rate = ∑([β(Par.β₀, Par.s, smax, g) * population for (g, population) in species])
+    # s_max 
     # death
-    total_death_rate = ∑([μ(Par.μ₀, g, population, Par.s, Par.K(t), Par.β₀) * population for (g, population) in species])
+    total_death_rate = ∑([μ(Par.μ₀, g, total_population, Par.s, Par.K(t), Par.β₀) * population for (g, population) in species])
     # time forwarding 
     δt = randexp() / (total_birth_rate + total_death_rate)
     # determine which event happens
@@ -67,19 +70,21 @@ function 𝚍species╱𝚍t!(species, t, Par::Parameters)
         # determine which genotype is born
         # using multinomial distribution
         # birth rate of each genotype
-        𝛃 = [β(Par.β₀) * population for (g, population) in species]
+        𝛃 = [β(Par.β₀, Par.s, smax, g) * population for (g, population) in species]
         # normalize to obtain birth probability
         Pᵦ = 𝛃 ./ ∑(𝛃)
         # sample
         g = sample([g for (g, population) in species], Weights(Pᵦ))
         # update population
         # check mutation probability for each site 
-        P𝛅 = vcat([Par.δ[1] for _ in 1:g.total_synonymous_mutations], 
-            [Par.δ[2] for _ in 1:g.total_APOBEC3_mutations], 
-            [Par.δ[3] for _ in 1:g.total_reverse_APOBEC3_mutations])
-        rand_numbers = rand(length(P𝛅))
+        # P𝛅 = vcat([Par.δ[1] for _ in 1:g.total_synonymous_mutations], 
+        #     [Par.δ[2] for _ in 1:g.total_APOBEC3_mutations], 
+        #     [Par.δ[3] for _ in 1:g.total_reverse_APOBEC3_mutations])
         # determine if at least one mutation happens
         mut_flag = false
+        P𝛅 = [Par.δ[1] * g.total_synonymous_mutations, 
+                Par.δ[2] * g.total_APOBEC3_mutations, 
+                Par.δ[3] * g.total_reverse_APOBEC3_mutations]
         
         g′ = deepcopy(g)
         # The following implementation is very inefficient when total sites are large 
@@ -143,7 +148,8 @@ function 𝚍species╱𝚍t!(species, t, Par::Parameters)
         end
         if mut_flag 
             # add g′ to species
-            g′.id = length(species) + 1
+            global n_species += 1
+            g′.id = n_species
             species[g′] = 1
         else
             species[g] += 1
@@ -152,7 +158,7 @@ function 𝚍species╱𝚍t!(species, t, Par::Parameters)
         # determine which genotype dies
         # using multinomial distribution
         # death rate of each genotype
-        𝛍 = [μ(Par.μ₀, g, population, Par.s, Par.K(t), Par.β₀) * population for (g, population) in species]
+        𝛍 = [μ(Par.μ₀, g, total_population, Par.s, Par.K(t), Par.β₀) * population for (g, population) in species]
         # normalize
         P𝛍 = 𝛍 / sum(𝛍)
         # sample
@@ -165,7 +171,24 @@ end
 
 # initial condition
 species = Dict{Genotype, Int}()
-g₀ = Genotype(
+
+
+function normalize!(species)
+    # remove extinct species whose population is 0
+    for (g, population) in species
+        if population <= 0
+            delete!(species, g)
+        end
+    end
+    return species
+end
+
+
+if length(ARGS) > 0
+    profile = ARGS[1]
+    include(profile)
+else
+    g₀ = Genotype(
      1, # id
      Int(1e6),  # total synonymous mutations
      Int(1e4),  # total APOBEC3 mutations
@@ -173,62 +196,86 @@ g₀ = Genotype(
      0,  # synonymous mutations
      0,  # APOBEC3 mutations
      0  # reverse APOBEC3 mutations
-)
-
-if length(ARGS) > 0
-    profile = ARGS[1]
-    include(profile)
-else
+    )
     Par = Parameters(
     1.0,  # β₀
     0.5,  # μ₀
-    1.0,  # s
-    [1e-8, 1e-5, 1e-9],  # δ
-    t -> minimum([1e7 ,1e5 * (1+exp(t))])  # K
+    0.0,  # s
+    [1e-7, 1e-5, 1e-6],  # δ
+    t -> minimum([1e3 ,1e2 * (1+exp(0.01t))])  # K
 )
 end
 
 
 species[g₀] = 100
+n_species = 1
 using ProgressBars
 using Printf
 # simulation
 t = 0.0
-T = 100.0
-species_history = []
-time_history = []
+T = 1000.0
+sampled_DNA = []
+time_points = []
+n_sample_per_time = 10
 prog = ProgressBar(total = round(Int,100T))
+prog_count = 0
 while t < T
+    global t
     # @show t
     # ProgressBars.update(prog, round(Int, t))
-    push!(species_history, deepcopy(species))
-    push!(time_history, t)
     δt = 𝚍species╱𝚍t!(species, t, Par)
     if round(100*(t+ δt)) > round(100*t)
-        ProgressBars.update(prog)
-        set_postfix(prog, t = @sprintf("%.2f", t))
+        while prog_count < round(100*(t+ δt))
+            global prog_count += 1
+            ProgressBars.update(prog)
+        end
+        smax = maximum([selection(g, Par.s) for (g, population) in species])
+        total_population = ∑([population for (g, population) in species])
+        total_birth_rate = ∑([β(Par.β₀, Par.s, smax, g) * population for (g, population) in species])
+        # death
+        total_death_rate = ∑([μ(Par.μ₀, g, total_population, Par.s, Par.K(t), Par.β₀) * population for (g, population) in species])    
+        normalize!(species)
+        set_multiline_postfix(prog, "t = $(@sprintf("%.2f", t))\nN = $(sum([population for (g, population) in species]))\nK = $(Par.K(t))\nβ = $total_birth_rate\nμ = $total_death_rate\nN_species = $(length(species))\n")
+        populations = [population for (g, population) in species]
+        
+        if length(populations) == 0
+            break
+        end
+        if round(10000*(t+δt)/T) > round(10000*t/T)
+            genotypes = [g for (g, population) in species]
+            sampled_genotypes = sample(genotypes, Weights(populations), n_sample_per_time)
+            for g in sampled_genotypes
+                push!(sampled_DNA, g)
+                push!(time_points, time)
+            end
+        end
+    
     end
     t += δt
 end
-push!(species_history, deepcopy(species))
-push!(time_history, t)
 
 # randomly sample 10 genomes from each time point in species history 
 # and save them in a file
-sampled_DNA = []
-time_points = []
-n_sample_per_time = 1
-for (species, time) in zip(species_history, time_history)
-    populations = [population for (g, population) in species]
-    genotypes = [g for (g, population) in species]
-    sampled_genotypes = sample(genotypes, Weights(populations), n_sample_per_time)
-    for g in sampled_genotypes
-        push!(sampled_DNA, g)
-        push!(time_points, time)
-    end
-end
-
+rand_label = rand(1:100)
 using BSON 
 # save data
 label = "s_$(Par.s)_μ₀_$(Par.μ₀)_β₀_$(Par.β₀)_Kt_$(Par.K(0.0))_$(Par.K(100.0))"
-BSON.@save "data/simulated_$(label)_$(rand(1:100)).bson" sampled_DNA time_points Par
+BSON.@save "data/simulated_$(label)_$(rand_label).bson" sampled_DNA time_points Par
+
+using Plots 
+using LaTeXStrings
+# plot number of synonymous mutations vs number of APOBEC3 mutations
+N_synonymous = [g.synonymous_mutations for g in sampled_DNA]
+N_APOBEC3 = [g.APOBEC3_mutations for g in sampled_DNA]
+population = ∑([population for (g, population) in species])
+p = scatter(N_synonymous, 
+                N_APOBEC3, 
+                xlabel = L"N_{\mathrm{ synonymous}}", 
+                ylabel = L"N_{\mathrm{APOBEC3}}", 
+                title = "s = $(Par.s), N = $population",
+                legend = false, 
+                markersize = 0.5, 
+                dpi = 300, 
+                size=(300,300))
+savefig(p, "figures/simulated_$(label)_$(rand_label).png")
+savefig(p, "figures/simulated_$(label)_$(rand_label).pdf")
