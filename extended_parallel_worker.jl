@@ -3,7 +3,7 @@ addprocs(16)
 @everywhere using ProgressMeter
 
 @everywhere function run_profile(profile)
-    (run∘pipeline)(`julia dna_simulation.jl $profile`)
+    (run∘pipeline)(`julia extended_dna_simulation.jl $profile`)
 end
 
 if length(ARGS) == 0
@@ -27,7 +27,7 @@ try
     #     @show profile
     #     run_profile(profile)
     # end
-    progress_pmap(run_profile, profiles; progress = Progress(length(profiles), color=:blue, showspeed = true,barglyphs=BarGlyphs("[=> ]")))
+    progress_pmap(run_profile, profiles; progress = Progress(length(profiles), color=:white, showspeed = true,barglyphs=BarGlyphs("[=> ]")))
     # @time pmap(run_profile, profiles)
     # the content of mail_success is 
     mail_body = """

@@ -1,4 +1,4 @@
-# N = 100
+# N = 500
 g₀ = Genotype(
     1, # id
     Int(1e6),  # total synonymous mutations
@@ -13,5 +13,5 @@ g₀ = Genotype(
    0.5,  # μ₀
    0.1,  # s
    [1e-7, 1e-5, 1e-6],  # δ
-   t -> minimum([1000 ,100 * (1+exp(0.005t))])  # K
+   t -> 2500  # K
 )
