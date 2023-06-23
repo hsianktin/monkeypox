@@ -77,7 +77,7 @@ g₀ = Genotype(
 """
 end
 
-Ns = [100, 500, 1000]
+Ns = [100, 500]
 ss = [10.0^x for x in -5:1:0]
 sₕs = [10.0^x for x in -4:3:2]
 for N in Ns

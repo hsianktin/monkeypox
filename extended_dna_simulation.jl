@@ -259,7 +259,7 @@ while t < T
         # death
         total_death_rate = ∑([μ(Par.μ₀, g, total_population, Par.s, Par.sₕ, Par.K(t), Par.β₀, smax) * population for (g, population) in species])    
         normalize!(species)
-        print( "t = $(@sprintf("%.2f", t))\nN = $(sum([population for (g, population) in species]))\nK = $(Par.K(t))\nβ = $total_birth_rate\nμ = $total_death_rate\nN_species = $(length(species))\n")
+        # print( "t = $(@sprintf("%.2f", t))\nN = $(sum([population for (g, population) in species]))\nK = $(Par.K(t))\nβ = $total_birth_rate\nμ = $total_death_rate\nN_species = $(length(species))\n")
         populations = [population for (g, population) in species]
         
         if length(populations) == 0

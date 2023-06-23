@@ -229,25 +229,25 @@ sampled_DNA = []
 N_t = []
 time_points = []
 n_sample_per_time = 10
-prog = ProgressBar(total = round(Int,100T))
-prog_count = 0
+# prog = ProgressBar(total = round(Int,100T))
+# prog_count = 0
 while t < T
     global t
     # @show t
     # ProgressBars.update(prog, round(Int, t))
     δt = 𝚍species╱𝚍t!(species, t, Par)
     if round(100*(t+ δt)) > round(100*t)
-        while prog_count < round(100*(t+ δt))
-            global prog_count += 1
-            ProgressBars.update(prog)
-        end
+        # while prog_count < round(100*(t+ δt))
+        #     global prog_count += 1
+        #     ProgressBars.update(prog)
+        # end
         smax = maximum([selection(g, Par.s) for (g, population) in species])
         total_population = ∑([population for (g, population) in species])
         total_birth_rate = ∑([β(Par.β₀, Par.s, smax, g) * population for (g, population) in species])
         # death
         total_death_rate = ∑([μ(Par.μ₀, g, total_population, Par.s, Par.K(t), Par.β₀, smax) * population for (g, population) in species])    
         normalize!(species)
-        set_multiline_postfix(prog, "t = $(@sprintf("%.2f", t))\nN = $(sum([population for (g, population) in species]))\nK = $(Par.K(t))\nβ = $total_birth_rate\nμ = $total_death_rate\nN_species = $(length(species))\n")
+        # set_multiline_postfix(prog, "t = $(@sprintf("%.2f", t))\nN = $(sum([population for (g, population) in species]))\nK = $(Par.K(t))\nβ = $total_birth_rate\nμ = $total_death_rate\nN_species = $(length(species))\n")
         populations = [population for (g, population) in species]
         
         if length(populations) == 0

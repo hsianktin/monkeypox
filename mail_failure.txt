@@ -1,0 +1,119 @@
+From: "Automata" <automata@ryzen>
+To: "Xiangting Li" <xiangting.li@ucla.edu>
+Subject: monkeypox simulation task failed
+
+Hi Xiangting,
+
+The tasks scheduled in monkeypox simulation encountered a problem. Please review the logs and fix the problem.
+RemoteException(6, CapturedException(ProcessFailedException(Base.Process[Process(`julia dna_simulation.jl profiles/extended_N100_s0.0001_0.0001.jl`, ProcessExited(1))]), Any[(YY.runYY.739_38282.clone_1.clone at sys.so:?, 1), (run at process.jl:477 [inlined], 1), (call_composed at operators.jl:1040 [inlined], 1), (#_#95 at operators.jl:1035 [inlined], 1), (ComposedFunction at operators.jl:1033 [inlined], 1), (run_profile at parallel_worker.jl:6 [inlined], 1), (#56 at ProgressMeter.jl:1016, 1), (YY.invokelatestYY.2_41666.clone at sys.so:?, 1), (invokelatest_54457.clone at sys.so:?, 1), (#110 at process_messages.jl:285, 1), (run_work_thunk at process_messages.jl:70, 1), (macro expansion at process_messages.jl:285 [inlined], 1), (#109 at task.jl:484, 1)]))
+The profiles are:
+    - profiles/extended_N100_s0.0001_0.0001.jl
+     -profiles/extended_N100_s0.0001_0.1.jl
+     -profiles/extended_N100_s0.001_0.0001.jl
+     -profiles/extended_N100_s0.001_0.1.jl
+     -profiles/extended_N100_s0.1_0.0001.jl
+     -profiles/extended_N100_s0.1_0.1.jl
+     -profiles/extended_N100_s0.0001_0.0001_constant_K.jl
+     -profiles/extended_N100_s0.0001_0.1_constant_K.jl
+     -profiles/extended_N100_s0.001_0.0001_constant_K.jl
+     -profiles/extended_N100_s0.001_0.1_constant_K.jl
+     -profiles/extended_N100_s0.1_0.0001_constant_K.jl
+     -profiles/extended_N100_s0.1_0.1_constant_K.jl
+     -profiles/extended_N100_s0.0001_100.0.jl
+     -profiles/extended_N100_s0.001_100.0.jl
+     -profiles/extended_N100_s0.1_100.0.jl
+     -profiles/extended_N100_s0.0001_100.0_constant_K.jl
+     -profiles/extended_N100_s0.001_100.0_constant_K.jl
+     -profiles/extended_N100_s0.1_100.0_constant_K.jl
+     -profiles/extended_N100_s0.010000000000000002_0.0001.jl
+     -profiles/extended_N100_s0.010000000000000002_0.1.jl
+     -profiles/extended_N100_s0.010000000000000002_0.0001_constant_K.jl
+     -profiles/extended_N100_s0.010000000000000002_0.1_constant_K.jl
+     -profiles/extended_N100_s0.010000000000000002_100.0.jl
+     -profiles/extended_N100_s0.010000000000000002_100.0_constant_K.jl
+     -profiles/extended_N100_s1.0_0.0001.jl
+     -profiles/extended_N100_s1.0_0.1.jl
+     -profiles/extended_N100_s1.0_0.0001_constant_K.jl
+     -profiles/extended_N100_s1.0_0.1_constant_K.jl
+     -profiles/extended_N100_s1.0_100.0.jl
+     -profiles/extended_N100_s1.0_100.0_constant_K.jl
+     -profiles/extended_N100_s1.0e-5_0.0001.jl
+     -profiles/extended_N100_s1.0e-5_0.1.jl
+     -profiles/extended_N100_s1.0e-5_0.0001_constant_K.jl
+     -profiles/extended_N100_s1.0e-5_0.1_constant_K.jl
+     -profiles/extended_N100_s1.0e-5_100.0.jl
+     -profiles/extended_N100_s1.0e-5_100.0_constant_K.jl
+     -profiles/extended_N500_s0.0001_0.0001.jl
+     -profiles/extended_N500_s0.0001_0.1.jl
+     -profiles/extended_N500_s0.001_0.0001.jl
+     -profiles/extended_N500_s0.001_0.1.jl
+     -profiles/extended_N500_s0.1_0.0001.jl
+     -profiles/extended_N500_s0.1_0.1.jl
+     -profiles/extended_N500_s0.0001_0.0001_constant_K.jl
+     -profiles/extended_N500_s0.0001_0.1_constant_K.jl
+     -profiles/extended_N500_s0.001_0.0001_constant_K.jl
+     -profiles/extended_N500_s0.001_0.1_constant_K.jl
+     -profiles/extended_N500_s0.1_0.0001_constant_K.jl
+     -profiles/extended_N500_s0.1_0.1_constant_K.jl
+     -profiles/extended_N500_s0.0001_100.0.jl
+     -profiles/extended_N500_s0.001_100.0.jl
+     -profiles/extended_N500_s0.1_100.0.jl
+     -profiles/extended_N500_s0.0001_100.0_constant_K.jl
+     -profiles/extended_N500_s0.001_100.0_constant_K.jl
+     -profiles/extended_N500_s0.1_100.0_constant_K.jl
+     -profiles/extended_N500_s0.010000000000000002_0.0001.jl
+     -profiles/extended_N500_s0.010000000000000002_0.1.jl
+     -profiles/extended_N500_s0.010000000000000002_0.0001_constant_K.jl
+     -profiles/extended_N500_s0.010000000000000002_0.1_constant_K.jl
+     -profiles/extended_N500_s0.010000000000000002_100.0.jl
+     -profiles/extended_N500_s0.010000000000000002_100.0_constant_K.jl
+     -profiles/extended_N500_s1.0_0.0001.jl
+     -profiles/extended_N500_s1.0_0.1.jl
+     -profiles/extended_N500_s1.0_0.0001_constant_K.jl
+     -profiles/extended_N500_s1.0_0.1_constant_K.jl
+     -profiles/extended_N500_s1.0_100.0.jl
+     -profiles/extended_N500_s1.0_100.0_constant_K.jl
+     -profiles/extended_N500_s1.0e-5_0.0001.jl
+     -profiles/extended_N500_s1.0e-5_0.1.jl
+     -profiles/extended_N500_s1.0e-5_0.0001_constant_K.jl
+     -profiles/extended_N500_s1.0e-5_0.1_constant_K.jl
+     -profiles/extended_N500_s1.0e-5_100.0.jl
+     -profiles/extended_N500_s1.0e-5_100.0_constant_K.jl
+     -profiles/N100_s0.0001.jl
+     -profiles/N100_s0.001.jl
+     -profiles/N100_s0.1.jl
+     -profiles/N100_s0.0001_constant_K.jl
+     -profiles/N100_s0.001_constant_K.jl
+     -profiles/N100_s0.1_constant_K.jl
+     -profiles/N100_s0.010000000000000002.jl
+     -profiles/N100_s0.010000000000000002_constant_K.jl
+     -profiles/N100_s1.0e-5.jl
+     -profiles/N100_s1.0e-5_constant_K.jl
+     -profiles/N100_s1.0e-6.jl
+     -profiles/N100_s1.0e-6_constant_K.jl
+     -profiles/N500_s0.0001.jl
+     -profiles/N500_s0.001.jl
+     -profiles/N500_s0.1.jl
+     -profiles/N500_s0.0001_constant_K.jl
+     -profiles/N500_s0.001_constant_K.jl
+     -profiles/N500_s0.1_constant_K.jl
+     -profiles/N500_s0.010000000000000002.jl
+     -profiles/N500_s0.010000000000000002_constant_K.jl
+     -profiles/N500_s1.0e-5.jl
+     -profiles/N500_s1.0e-5_constant_K.jl
+     -profiles/N500_s1.0e-6.jl
+     -profiles/N500_s1.0e-6_constant_K.jl
+     -profiles/N1000_s0.0001.jl
+     -profiles/N1000_s0.001.jl
+     -profiles/N1000_s0.1.jl
+     -profiles/N1000_s0.0001_constant_K.jl
+     -profiles/N1000_s0.001_constant_K.jl
+     -profiles/N1000_s0.1_constant_K.jl
+     -profiles/N1000_s0.010000000000000002.jl
+     -profiles/N1000_s0.010000000000000002_constant_K.jl
+     -profiles/N1000_s1.0e-5.jl
+     -profiles/N1000_s1.0e-5_constant_K.jl
+     -profiles/N1000_s1.0e-6.jl
+     -profiles/N1000_s1.0e-6_constant_K.jl
+
+Automata.

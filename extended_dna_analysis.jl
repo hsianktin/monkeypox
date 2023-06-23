@@ -18,16 +18,21 @@ mutable struct Genotype
     total_synonymous_mutations::Int
     total_APOBEC3_mutations::Int
     total_reverse_APOBEC3_mutations::Int
+    total_hidden_mutations::Int
     synonymous_mutations::Int
     APOBEC3_mutations::Int
     reverse_APOBEC3_mutations::Int
+    hidden_mutations::Int
 end
 
+# parameters 
 struct Parameters
     β₀::Float64
     μ₀::Float64
     s::Float64
+    sₕ::Float64
     δ::Array{Float64, 1}
+    T::Float64
     K::Function
 end
 
@@ -35,7 +40,7 @@ function get_files(label::String, dir::String)
     # find all files of the pattern: "data/simulated_$(label)_$(rand_label).bson"
     # where rand_label is a random string of integers
     # Prepare regex pattern
-    pattern = Regex("^simulated_$(label)_[0-9]+.bson")
+    pattern = Regex("^extended_simulated_$(label)_[0-9]+.bson")
     
     # Get all files in the directory
     files = readdir(dir)
@@ -52,7 +57,7 @@ data_dict = Dict{Parameters, Array{Any, 1}}()
     
 profiles = readdir("profiles") |> # keep only terms ending with .jl 
             (x -> filter(y -> endswith(y, ".jl"), x)) |> # filter by starting with "N"
-            (x -> filter(y -> startswith(y, "N"), x)) 
+            (x -> filter(y -> startswith(y, "extended"), x)) 
 
 ### testing 
 # define profile
@@ -60,7 +65,7 @@ profile = profiles[1]
 for profile in profiles
     # load profile
     include("profiles/$profile")
-    @show label = "s_$(Par.s)_μ₀_$(Par.μ₀)_β₀_$(Par.β₀)_Kt_$(Par.K(0.0))_$(Par.K(100.0))"
+    @show label = "s_$(Par.s)_sₕ_$(Par.sₕ)_μ₀_$(Par.μ₀)_β₀_$(Par.β₀)_Kt_$(Par.K(0.0))_$(Par.K(100.0))"
 
     dir = "data"
     files = get_files(label, dir)
@@ -98,6 +103,7 @@ function summarize(Pars)
         β₀ = Float64[],
         μ₀ = Float64[],
         s = Float64[],
+        sₕ = Float64[],
         δ₁ = Float64[],
         δ₂ = Float64[],
         δ₃ = Float64[],
@@ -118,8 +124,7 @@ function summarize(Pars)
 
 
     for Par_i in Pars
-        global T
-
+        T = Par_i.T
         DNA_samples_col = data_dict[Par_i][1]
         random_ids = data_dict[Par_i][4]
         DNA_samples = DNA_samples_col[1]
@@ -159,6 +164,7 @@ function summarize(Pars)
                 Par_i.β₀,
                 Par_i.μ₀,
                 Par_i.s,
+                Par_i.sₕ,
                 Par_i.δ[1],
                 Par_i.δ[2],
                 Par_i.δ[3],
@@ -185,17 +191,17 @@ result_df = summarize(Pars)
 # filter out result_df with s == 0
 result_df = filter(row -> row.s != 0, result_df)
 using CSV
-CSV.write("data/dna_simulation_result_df.csv", result_df)
+CSV.write("data/extended_dna_simulation_result_df.csv", result_df)
 # filter result_df by selecting those K₀ == Kₜ
 constant_K_result_df = filter(row -> row.K₀ == row.Kₜ, result_df)
-CSV.write("data/dna_simulation_result_df_constant_K.csv", constant_K_result_df)
+CSV.write("data/extended_dna_simulation_result_df_constant_K.csv", constant_K_result_df)
 # non-constant K
 non_constant_K_result_df = filter(row -> row.K₀ != row.Kₜ, result_df)
-CSV.write("data/dna_simulation_result_df_non_constant_K.csv", non_constant_K_result_df)
+CSV.write("data/extended_dna_simulation_result_df_non_constant_K.csv", non_constant_K_result_df)
 
 # find mean and stdd of coef_slope and coef_intercept conditioned on the same Par 
 # group the result_df by Par
-grouped_result_df = groupby(result_df, [:β₀, :μ₀, :s, :δ₁, :δ₂, :δ₃, :K₀, :Kₜ, :T])
+grouped_result_df = groupby(result_df, [:β₀, :μ₀, :s, :sₕ, :δ₁, :δ₂, :δ₃, :K₀, :Kₜ, :T])
 
 # find the mean and std of coef_slope and coef_intercept conditioned on the same Par
 mean_coef_slope = [mean(group.coef_slope) for group in grouped_result_df]
@@ -208,6 +214,7 @@ stat_df = DataFrame(
     β₀ = [group.β₀[1] for group in grouped_result_df],
     μ₀ = [group.μ₀[1] for group in grouped_result_df],
     s = [group.s[1] for group in grouped_result_df],
+    sₕ = [group.sₕ[1] for group in grouped_result_df],
     δ₁ = [group.δ₁[1] for group in grouped_result_df],
     δ₂ = [group.δ₂[1] for group in grouped_result_df],
     δ₃ = [group.δ₃[1] for group in grouped_result_df],
@@ -221,11 +228,11 @@ stat_df = DataFrame(
 )
 
 # write the stat_df to csv, all, constant K, non-constant K
-CSV.write("data/dna_simulation_stat_df.csv", stat_df)
+CSV.write("data/extended_dna_simulation_stat_df.csv", stat_df)
 constant_K_stat_df = filter(row -> row.K₀ == row.Kₜ, stat_df)
-CSV.write("data/dna_simulation_stat_df_constant_K.csv", constant_K_stat_df)
+CSV.write("data/extended_dna_simulation_stat_df_constant_K.csv", constant_K_stat_df)
 non_constant_K_stat_df = filter(row -> row.K₀ != row.Kₜ, stat_df)
-CSV.write("data/dna_simulation_stat_df_non_constant_K.csv", non_constant_K_stat_df)
+CSV.write("data/extended_dna_simulation_stat_df_non_constant_K.csv", non_constant_K_stat_df)
 
 
 # # PGFPlotsX plot scatter plot of result_df.coef_slope vs result_df.s, 
