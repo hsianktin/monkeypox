@@ -114,6 +114,11 @@ A_to_T = [count_mutations_by_matrix(
             ) 
             for matrix in matrices]
 
+A_to_C = [count_mutations_by_matrix(
+                matrix, 
+                [(i,j) for i in _A, j in _C]
+            ) 
+            for matrix in matrices]
 A_to_X = [count_mutations_by_matrix(
                 matrix, 
                 [(i,j) for i in _A, j in union(_C, _G, _T)]
@@ -162,7 +167,9 @@ X_to_Y = [count_mutations_by_matrix(
 CSV.write("data/gtr_analysis_$(id).csv", DataFrame(
     X_to_Y = X_to_Y,
     A_to_X = A_to_X,
-    TC_to_TT = TC_to_TT
+    TC_to_TT = TC_to_TT,
+    A_to_T = A_to_T,
+    A_to_C = A_to_C,
 ))
 
 

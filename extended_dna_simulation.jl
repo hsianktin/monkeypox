@@ -32,18 +32,18 @@ end
 species = Dict{Genotype, Int}() # map genotype to population size
 n_species = 0 # number of species
 # birth rate
-function β(β₀::Float64, s::Float64, sₕ::Float64, smax::Float64, g::Genotype)
-    return β₀ * selection(g,s,sₕ) / (smax)
+function β(β₀::Float64, σ::Float64, σₕ::Float64, smax::Float64, g::Genotype)
+    return β₀ * selection(g,σ,σₕ) / (smax)
 end
 
 # selection coefficient
-function selection(g::Genotype, s::Float64, sₕ::Float64)
-    return 1 + s * (g.APOBEC3_mutations) + sₕ * (g.hidden_mutations)
+function selection(g::Genotype, σ::Float64, σₕ::Float64)
+    return 1 + σ * (g.APOBEC3_mutations) + σₕ * (g.hidden_mutations)
 end
 
 # death rate with selection; more APOBEC3 mutations, lower death rate
-function μ(μ₀::Float64, g::Genotype, population::Int, s::Float64, sₕ::Float64, K, β₀::Float64, smax::Float64)
-    return  (μ₀ + β₀* selection(g,s, sₕ) / (smax) * population / K)
+function μ(μ₀::Float64, g::Genotype, population::Int, σ::Float64, σₕ::Float64, K, β₀::Float64, smax::Float64)
+    return  (μ₀ + β₀* selection(g,σ, σₕ) / (smax) * population / K)
 end
 
 # mutation probability
@@ -53,8 +53,8 @@ end
 struct Parameters
     β₀::Float64
     μ₀::Float64
-    s::Float64
-    sₕ::Float64
+    σ::Float64
+    σₕ::Float64
     δ::Array{Float64, 1}
     T::Float64
     K::Function
@@ -62,12 +62,12 @@ end
 # time evolving operator 
 function 𝚍species╱𝚍t!(species, t, Par::Parameters)
     # birth rate 
-    smax = maximum([selection(g, Par.s, Par.sₕ) for (g, population) in species])
+    smax = maximum([selection(g, Par.σ, Par.σₕ) for (g, population) in species])
     total_population = ∑([population for (g, population) in species])
-    total_birth_rate = ∑([β(Par.β₀, Par.s,Par.sₕ, smax, g) * population for (g, population) in species])
+    total_birth_rate = ∑([β(Par.β₀, Par.σ,Par.σₕ, smax, g) * population for (g, population) in species])
     # s_max 
     # death
-    total_death_rate = ∑([μ(Par.μ₀, g, total_population, Par.s, Par.sₕ, Par.K(t), Par.β₀, smax) * population for (g, population) in species])
+    total_death_rate = ∑([μ(Par.μ₀, g, total_population, Par.σ, Par.σₕ, Par.K(t), Par.β₀, smax) * population for (g, population) in species])
     # time forwarding 
     δt = randexp() / (total_birth_rate + total_death_rate)
     # determine which event happens
@@ -77,7 +77,7 @@ function 𝚍species╱𝚍t!(species, t, Par::Parameters)
         # determine which genotype is born
         # using multinomial distribution
         # birth rate of each genotype
-        𝛃 = [β(Par.β₀, Par.s, Par.sₕ,smax, g) * population for (g, population) in species]
+        𝛃 = [β(Par.β₀, Par.σ, Par.σₕ,smax, g) * population for (g, population) in species]
         # normalize to obtain birth probability
         Pᵦ = 𝛃 ./ ∑(𝛃)
         # sample
@@ -177,7 +177,7 @@ function 𝚍species╱𝚍t!(species, t, Par::Parameters)
         # determine which genotype dies
         # using multinomial distribution
         # death rate of each genotype
-        𝛍 = [μ(Par.μ₀, g, total_population, Par.s, Par.sₕ, Par.K(t), Par.β₀, smax) * population for (g, population) in species]
+        𝛍 = [μ(Par.μ₀, g, total_population, Par.σ, Par.σₕ, Par.K(t), Par.β₀, smax) * population for (g, population) in species]
         # normalize
         P𝛍 = 𝛍 / sum(𝛍)
         # sample
@@ -221,8 +221,8 @@ else
     Par = Parameters(
     1.0,  # β₀
     0.5,  # μ₀
-    1.0,  # s
-    199.0,  # sₕ
+    1.0,  # σ
+    199.0,  # σₕ
     [1e-7, 1e-5, 1e-6,1e-5],  # δ
     1000.0, # T
     t -> minimum([1e4,1e2 * (1+exp(0.005t))])  # K
@@ -253,11 +253,11 @@ while t < T
         #     global prog_count += 1
         #     ProgressBars.update(prog)
         # end
-        smax = maximum([selection(g, Par.s, Par.sₕ) for (g, population) in species])
+        smax = maximum([selection(g, Par.σ, Par.σₕ) for (g, population) in species])
         total_population = ∑([population for (g, population) in species])
-        total_birth_rate = ∑([β(Par.β₀, Par.s,Par.sₕ, smax, g) * population for (g, population) in species])
+        total_birth_rate = ∑([β(Par.β₀, Par.σ,Par.σₕ, smax, g) * population for (g, population) in species])
         # death
-        total_death_rate = ∑([μ(Par.μ₀, g, total_population, Par.s, Par.sₕ, Par.K(t), Par.β₀, smax) * population for (g, population) in species])    
+        total_death_rate = ∑([μ(Par.μ₀, g, total_population, Par.σ, Par.σₕ, Par.K(t), Par.β₀, smax) * population for (g, population) in species])    
         normalize!(species)
         # print( "t = $(@sprintf("%.2f", t))\nN = $(sum([population for (g, population) in species]))\nK = $(Par.K(t))\nβ = $total_birth_rate\nμ = $total_death_rate\nN_species = $(length(species))\n")
         populations = [population for (g, population) in species]
@@ -288,7 +288,7 @@ end
 rand_label = rand(1:100)
 using BSON 
 # save data
-label = "s_$(Par.s)_sₕ_$(Par.sₕ)_μ₀_$(Par.μ₀)_β₀_$(Par.β₀)_Kt_$(Par.K(0.0))_$(Par.K(100.0))"
+label = "s_$(Par.σ)_sₕ_$(Par.σₕ)_μ₀_$(Par.μ₀)_β₀_$(Par.β₀)_Kt_$(Par.K(0.0))_$(Par.K(100.0))"
 BSON.@save "data/extended_simulated_$(label)_$(rand_label).bson" sampled_DNA time_points Par N_t
 
 using Plots 
@@ -303,7 +303,7 @@ p = scatter(N_synonymous,
                 N_APOBEC3, 
                 xlabel = L"N_{\mathrm{ synonymous}}", 
                 ylabel = L"N_{\mathrm{APOBEC3}}", 
-                title = "s = $(Par.s), sₕ = $(Par.sₕ), N = $population",
+                title = "σ = $(Par.σ), σₕ = $(Par.σₕ), N = $population",
                 legend = false, 
                 markersize = 0.5, 
                 dpi = 300, 

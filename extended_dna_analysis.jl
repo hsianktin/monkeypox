@@ -60,8 +60,6 @@ profiles = readdir("profiles") |> # keep only terms ending with .jl
             (x -> filter(y -> startswith(y, "extended"), x)) 
 
 ### testing 
-# define profile
-profile = profiles[1]
 for profile in profiles
     # load profile
     include("profiles/$profile")
@@ -70,7 +68,6 @@ for profile in profiles
     dir = "data"
     files = get_files(label, dir)
     # for each of the file, parse the random id 
-    file = files[1]
     DNA_samples = []
     population_sizes = []
     time_points = []
@@ -86,6 +83,9 @@ for profile in profiles
         end
         # parse the random id
         random_id = split(file, "_")[end][1:end-5]
+        if length(data[:sampled_DNA]) < 5000 # filter out early extinction
+            continue
+        end
         push!(DNA_samples, data[:sampled_DNA])
         push!(population_sizes, data[:N_t])
         push!(time_points, data[:time_points])
@@ -93,7 +93,7 @@ for profile in profiles
     end
     # build a dictionary from Par to [DNA_samples, population_sizes, time_points]
     # ADD to the dictionary
-    @show Par
+    @show [length(DNA_sample) for DNA_sample in DNA_samples]
     data_dict[Par] = [DNA_samples, population_sizes, time_points, random_ids]
 end
 Pars = collect(keys(data_dict))
