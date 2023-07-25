@@ -40,7 +40,7 @@ function get_files(label::String, dir::String)
     # find all files of the pattern: "data/simulated_$(label)_$(rand_label).bson"
     # where rand_label is a random string of integers
     # Prepare regex pattern
-    pattern = Regex("^extended_simulated_$(label)_[0-9]+.bson")
+    pattern = Regex("^mutation_selection_$(label)_[0-9]+.bson")
     
     # Get all files in the directory
     files = readdir(dir)
@@ -56,14 +56,15 @@ end
 data_dict = Dict{Parameters, Array{Any, 1}}()
     
 profiles = readdir("profiles") |> # keep only terms ending with .jl 
-            (x -> filter(y -> endswith(y, ".jl"), x)) |> # filter by starting with "N"
-            (x -> filter(y -> startswith(y, "extended"), x)) 
+            (x -> filter(y -> endswith(y, "constant_K.jl"), x)) |> # filter by starting with "N"
+            (x -> filter(y -> startswith(y, "extended_N200"), x)) 
 
 ### testing 
+profile = profiles[27]
 for profile in profiles
     # load profile
     include("profiles/$profile")
-    @show label = "s_$(Par.s)_sₕ_$(Par.sₕ)_μ₀_$(Par.μ₀)_β₀_$(Par.β₀)_Kt_$(Par.K(0.0))_$(Par.K(100.0))"
+    label = "s_$(Par.s)_sₕ_$(Par.sₕ)_μ₀_$(Par.μ₀)_β₀_$(Par.β₀)_Kt_$(Par.K(0.0))_$(Par.K(100.0))"
 
     dir = "data"
     files = get_files(label, dir)
@@ -78,7 +79,7 @@ for profile in profiles
         try
             global data = BSON.load(file)
         catch
-            rm(file)
+            # rm(file)
             continue
         end
         # parse the random id
@@ -93,7 +94,13 @@ for profile in profiles
     end
     # build a dictionary from Par to [DNA_samples, population_sizes, time_points]
     # ADD to the dictionary
-    @show [length(DNA_sample) for DNA_sample in DNA_samples]
+    if length(DNA_samples) == 0
+        @warn "No data for $profile"
+        # for file in files
+        #     rm(file)
+        # end
+        continue
+    end
     data_dict[Par] = [DNA_samples, population_sizes, time_points, random_ids]
 end
 Pars = collect(keys(data_dict))
@@ -123,7 +130,8 @@ function summarize(Pars)
     )
 
 
-    for Par_i in Pars
+    for (Par_i,i) in zip(Pars, 1:length(Pars))
+        @show i
         T = Par_i.T
         DNA_samples_col = data_dict[Par_i][1]
         random_ids = data_dict[Par_i][4]
@@ -191,13 +199,13 @@ result_df = summarize(Pars)
 # filter out result_df with s == 0
 result_df = filter(row -> row.s != 0, result_df)
 using CSV
-CSV.write("data/extended_dna_simulation_result_df.csv", result_df)
+CSV.write("data/mutation_selection_simulation_result_df.csv", result_df)
 # filter result_df by selecting those K₀ == Kₜ
-constant_K_result_df = filter(row -> row.K₀ == row.Kₜ, result_df)
-CSV.write("data/extended_dna_simulation_result_df_constant_K.csv", constant_K_result_df)
-# non-constant K
-non_constant_K_result_df = filter(row -> row.K₀ != row.Kₜ, result_df)
-CSV.write("data/extended_dna_simulation_result_df_non_constant_K.csv", non_constant_K_result_df)
+# constant_K_result_df = filter(row -> row.K₀ == row.Kₜ, result_df)
+# CSV.write("data/extended_dna_simulation_result_df_constant_K.csv", constant_K_result_df)
+# # non-constant K
+# non_constant_K_result_df = filter(row -> row.K₀ != row.Kₜ, result_df)
+# CSV.write("data/extended_dna_simulation_result_df_non_constant_K.csv", non_constant_K_result_df)
 
 # find mean and stdd of coef_slope and coef_intercept conditioned on the same Par 
 # group the result_df by Par
@@ -262,3 +270,56 @@ CSV.write("data/extended_dna_simulation_stat_df_non_constant_K.csv", non_constan
 #     )
 # )
 
+data_dict = Dict{Parameters, Array{Any, 1}}()
+
+profiles = readdir("profiles") |> # keep only terms ending with .jl 
+            (x -> filter(y -> endswith(y, "_0.0_constant_K.jl"), x)) |> # filter by starting with "N"
+            (x -> filter(y -> startswith(y, "extended_N"), x)) 
+
+for profile in profiles
+    # load profile
+    include("profiles/$profile")
+    label = "s_$(Par.s)_sₕ_$(Par.sₕ)_μ₀_$(Par.μ₀)_β₀_$(Par.β₀)_Kt_$(Par.K(0.0))_$(Par.K(100.0))"
+
+    dir = "data"
+    files = get_files(label, dir)
+    # for each of the file, parse the random id 
+    DNA_samples = []
+    population_sizes = []
+    time_points = []
+    random_ids = []
+    # handle each file
+    for file in files
+        # load data using BSON
+        try
+            global data = BSON.load(file)
+        catch
+            # rm(file)
+            continue
+        end
+        # parse the random id
+        random_id = split(file, "_")[end][1:end-5]
+        if length(data[:sampled_DNA]) < 5000 # filter out early extinction
+            continue
+        end
+        push!(DNA_samples, data[:sampled_DNA])
+        push!(population_sizes, data[:N_t])
+        push!(time_points, data[:time_points])
+        push!(random_ids, random_id)
+    end
+    # build a dictionary from Par to [DNA_samples, population_sizes, time_points]
+    # ADD to the dictionary
+    if length(DNA_samples) == 0
+        @warn "No data for $profile"
+        # for file in files
+        #     rm(file)
+        # end
+        continue
+    end
+    data_dict[Par] = [DNA_samples, population_sizes, time_points, random_ids]
+end
+Pars = collect(keys(data_dict))            
+result_df = summarize(Pars)
+
+# write the result_df to csv, all, constant K, non-constant K
+CSV.write("data/renewed_dna_simulation_result_df.csv", result_df)

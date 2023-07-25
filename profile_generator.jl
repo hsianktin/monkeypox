@@ -77,18 +77,18 @@ g₀ = Genotype(
 """
 end
 
-Ns = [100, 500]
-ss = [10.0^x for x in -5:1:0]
-sₕs = [10.0^x for x in -4:3:2]
-for N in Ns
-    for s in ss
-        for sₕ in sₕs
-            open("profiles/extended_N$(N)_s$(s)_$(sₕ).jl", "w") do f
-                write(f, generate_profile(N, s, sₕ))
-            end
-        end
-    end
-end
+Ns = [200]
+ss = [10.0^x for x in -5:1:1]
+sₕs = [10.0^x for x in -7:0.5:2]
+# for N in Ns
+#     for s in ss
+#         for sₕ in sₕs
+#             open("profiles/extended_N$(N)_s$(s)_$(sₕ).jl", "w") do f
+#                 write(f, generate_profile(N, s, sₕ))
+#             end
+#         end
+#     end
+# end
 
 for N in Ns
     for s in ss
@@ -97,5 +97,14 @@ for N in Ns
                 write(f, constant_K_generate_profile(N, s, sₕ))
             end
         end
+    end
+end
+
+for N in [10.0^x for x in 2:0.1:4]
+    for s in ss
+        sₕ = 0.0
+            open("profiles/extended_N$(N)_s$(s)_$(sₕ)_constant_K.jl", "w") do f
+                write(f, constant_K_generate_profile(N, s, sₕ))
+            end
     end
 end

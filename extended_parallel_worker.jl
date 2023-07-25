@@ -21,12 +21,14 @@ end
 
 @info "The following profiles will be executed:"
 
-
+using Random
 try
     # for profile in profiles
     #     @show profile
     #     run_profile(profile)
     # end
+    # permute the profiles
+    Random.shuffle!(profiles)
     progress_pmap(run_profile, profiles; progress = Progress(length(profiles), color=:white, showspeed = true,barglyphs=BarGlyphs("[=> ]")))
     # @time pmap(run_profile, profiles)
     # the content of mail_success is 

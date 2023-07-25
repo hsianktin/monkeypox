@@ -85,7 +85,7 @@ function get_profile(N, s, sₕ; label="")
 end
 
 strong_selection_weak_hidden_profile = get_profile(100, 0.1, 0.0001)
-profiles = [get_profile(100, 0.1, 0.0001), get_profile(100, 0.1, 100.0)]
+profiles = [get_profile(100, 0.1, 0.0001), get_profile(100, 0.1, 100.0), varying_N_profile]
 Pars = []
 labels = []
 for profile in profiles
@@ -94,11 +94,33 @@ for profile in profiles
     push!(Pars, deepcopy(Par))
 end
 
-ids = [35,36]
+ids = [35,36,68]
 
 using PGFPlotsX
 # replace \\ with /
 pgfplots_str_norm(str) = replace("$(pwd())/$(str)", "\\" => "/")
+
+label = labels[3]
+id = ids[3]
+function read_sample_N_t(label, id)
+    file = get_file(label, "data", id)[1]
+    data = BSON.load(file)
+    DNA_samples = data[:sampled_DNA]
+    population_size = data[:N_t]
+
+    n_syn = [dna.synonymous_mutations for dna in DNA_samples ]
+    n_APOBEC3 = [dna.APOBEC3_mutations for dna in DNA_samples ]
+    data = DataFrame(n_syn = n_syn, n_APOBEC3 = n_APOBEC3, population_size = population_size, time_points = data[:time_points])
+
+    grouped = groupby(data, :n_syn)
+    sampled = combine(grouped, 
+        :n_APOBEC3 => (x -> sample(x, 2, replace=true)) => :n_APOBEC3,
+        :population_size => (x -> sample(x, 2, replace=true)) => :population_size,
+        :time_points => (x -> sample(x, 2, replace=true)) => :time_points
+    )
+    CSV.write("data/extended_sampled_data_with_N_t_$(label)_$(id).csv", sampled)
+    return "data/extended_sampled_data_with_N_t_$(label)_$(id).csv"
+end
 
 function read_sample_fit(label, id)
     file = get_file(label, "data", id)[1]
@@ -108,7 +130,6 @@ function read_sample_fit(label, id)
     population_size = data[:N_t]
     time_points = data[:time_points]
 
-    DNA_samples 
     n_syn = [dna.synonymous_mutations for dna in DNA_samples ]
     n_APOBEC3 = [dna.APOBEC3_mutations for dna in DNA_samples ]
     data = DataFrame(n_syn=n_syn, n_APOBEC3=n_APOBEC3)

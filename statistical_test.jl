@@ -1,5 +1,5 @@
 ∑(x) = sum(x)
-using Statistics
+using Statistics, Distributions
 using LinearAlgebra
 using DataFrames,CSV
 using Dates 
@@ -12,21 +12,56 @@ using Pipe
 # test for homogeneity
 function pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
     Pₐₚₒ = ∑(Oₐₚₒₛᵧₘs)/∑(Oₛᵧₘs)
-    p = 1 # p-value
+    ps = [] # p-value
     for (Oₐₚₒₛᵧₘ, Oₛᵧₘ) ∈ zip(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
         Ôₐₚₒₛᵧₘ = Oₛᵧₘ * Pₐₚₒ
         ∑([binom(Oₛᵧₘ, k) * Pₐₚₒ^k * (1 - Pₐₚₒ)^(Oₛᵧₘ-k) for k in 0:1:Oₛᵧₘ if abs(k - Ôₐₚₒₛᵧₘ) < abs(Oₐₚₒₛᵧₘ - Ôₐₚₒₛᵧₘ) ])
-        p *= 1-∑([binom(Oₛᵧₘ, k) * Pₐₚₒ^k * (1 - Pₐₚₒ)^(Oₛᵧₘ-k) for k in 0:1:Oₛᵧₘ if abs(k - Ôₐₚₒₛᵧₘ) < abs(Oₐₚₒₛᵧₘ - Ôₐₚₒₛᵧₘ) ])
+        push!(ps, maximum([
+            1-∑(    
+                [binom(Oₛᵧₘ, k) * Pₐₚₒ^k * (1 - Pₐₚₒ)^(Oₛᵧₘ-k) for k in 0:1:Oₛᵧₘ if abs(k - Ôₐₚₒₛᵧₘ) ≤ abs(Oₐₚₒₛᵧₘ - Ôₐₚₒₛᵧₘ) ]
+            ), 0]) )
     end
-    return p
+    @show ps
+    # Fisher's method for combining p-values
+    function fishers_method(p_values)
+        k = length(p_values)
+        test_statistic = -2 * sum(log.(p_values))
+        combined_p_value = ccdf(Chisq(2k), test_statistic)
+        return combined_p_value
+    end
+    
+    return fishers_method(ps)
 end
+
+function prediction_interval(Oₐₚₒₛᵧₘs, Oₛᵧₘs, new_Oₛᵧₘs)
+    Pₐₚₒ = ∑(Oₐₚₒₛᵧₘs)/∑(Oₛᵧₘs)
+    prob(x,lower_bound, upper_bound) = ∑([binom(x, k) * Pₐₚₒ^k * (1 - Pₐₚₒ)^(x-k) for k in lower_bound:1:upper_bound  ])
+    upper_bounds = []
+    lower_bounds = []
+    for x in new_Oₛᵧₘs
+        if x < 0
+            error("new_Oₛᵧₘs should be positive")
+        end
+        ȳ = Pₐₚₒ * x 
+        upper_bound = minimum([ceil(Int,ȳ + 1), x])
+        lower_bound = maximum([floor(Int,ȳ - 1), 0])
+        while upper_bound < x && lower_bound > 0 && prob(x, upper_bound, lower_bound) < 0.95
+            upper_bound += 1
+            lower_bound -= 1
+        end
+        push!(upper_bounds, upper_bound)
+        push!(lower_bounds, lower_bound)
+    end
+    return upper_bounds, lower_bounds
+end
+
 # modified binomial function
 # when n and k are large, we adopt Stirling's approximation.
 function binom(n, k)
     if k > n
         return 0
     end
-    if n >10 && k > 10
+    if n >10 && k > 10 
         return √(n/(2π*(k*(n-k)))) * exp(k*log(n/k) + (n-k)*log(n/(n-k)))
     else 
         return binomial(n, k)
@@ -51,7 +86,7 @@ function random_acc_by_year(accsₐ, times, year)
     end
     return accs[rand(1:length(accs))]
 end
-years = [2017,2018,2021,2022, 2023]
+years = [2017,2018,2021,2022]
 
 
 # Figure 1

@@ -112,7 +112,7 @@ n_s = β_post[1] / (β_pre[1] - β_post[2])
 @show quantile([coord[1] for coord in coords], [0.025, 0.975])
 # quantile([coord[1] for coord = coords], [0.025, 0.975]) = [11.610302717525197, 12.767675949924808]
 
-## FIG 2b
+## FIG 4b
 ref_acc = "KJ642617"
 df = CSV.read("./data/extended_APOBEC_A2C_synonymous_$(ref_acc).csv", DataFrame)
 pre2016_accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
@@ -124,10 +124,15 @@ plot_df = @pipe df |> filter(row -> row.acc ∈ post2016_accs, _)
 β, se, rse = linear_regression(hcat(ones(nrow(plot_df)), plot_df.Oₛᵧₘ), plot_df.Oₐ₊₋)
 
 @show β[1]
+# -9.269549618113123
 @show 1.96 .* se[1]
+# 0.33792660401062125
+# compute the p-value for β₁ == 0 by t-test
+@show 2 * (1 - cdf(Normal(0,1), abs(β[1] / se[1])))
+# 0.0
 
-## FIG 2c
-ref_acc = "MK783028"
+## FIG 4c
+ref_acc = "MK783029"
 df = CSV.read("./data/extended_APOBEC_A2C_synonymous_$(ref_acc).csv", DataFrame)
 pre2016_accs = @pipe df |> filter(row ->row.date < Date(2010,1,1),_) |> (x -> x.acc)
 pre2016_accs = [x for x in pre2016_accs if x != ref_acc]
@@ -138,7 +143,11 @@ post2016_accs = [x for x in post2016_accs if x != ref_acc]
 plot_df = @pipe df |> filter(row -> row.acc ∈ pre2016_accs, _)
 β, se, rse = linear_regression(hcat(ones(nrow(plot_df)), plot_df.Oₛᵧₘ), plot_df.Oₐ₊₋)
 @show β[1]
+# 2.6628151420390633
 @show 1.96 .* se[1]
+# 0.5548464513510758
+# compute the p-value for β₁ == 0 by t-test
+@show 2 * (1 - cdf(Normal(0,1), abs(β[1] / se[1])))
 
 
 plot_df = @pipe df |> filter(row -> row.acc ∈ post2016_accs, _)
@@ -280,3 +289,110 @@ plot_df = plot_df[plot_df.t .≤ Date("2023-01-01"), :]
 # sort by t
 plot_df = sort(plot_df, :t)
 CSV.write("./data/molecular_clock_CI.csv", plot_df)
+
+
+### Fig Resp 2
+df = CSV.read("./data/model_data.csv", DataFrame)
+function pₕ(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
+    Pₐₚₒ = ∑(Oₐₚₒₛᵧₘs)/∑(Oₛᵧₘs)
+    ps = [] # p-value
+    for (Oₐₚₒₛᵧₘ, Oₛᵧₘ) ∈ zip(Oₐₚₒₛᵧₘs, Oₛᵧₘs)
+        Ôₐₚₒₛᵧₘ = Oₛᵧₘ * Pₐₚₒ
+        ∑([binom(Oₛᵧₘ, k) * Pₐₚₒ^k * (1 - Pₐₚₒ)^(Oₛᵧₘ-k) for k in 0:1:Oₛᵧₘ if abs(k - Ôₐₚₒₛᵧₘ) < abs(Oₐₚₒₛᵧₘ - Ôₐₚₒₛᵧₘ) ])
+        push!(ps, maximum([
+            1-∑(    
+                [binom(Oₛᵧₘ, k) * Pₐₚₒ^k * (1 - Pₐₚₒ)^(Oₛᵧₘ-k) for k in 0:1:Oₛᵧₘ if abs(k - Ôₐₚₒₛᵧₘ) < abs(Oₐₚₒₛᵧₘ - Ôₐₚₒₛᵧₘ) ]
+            ), 0]) )
+    end
+    @show ps
+    # Fisher's method for combining p-values
+    function fishers_method(p_values)
+        k = length(p_values)
+        test_statistic = -2 * sum(log.(p_values))
+        combined_p_value = ccdf(Chisq(2k), test_statistic)
+        return combined_p_value
+    end
+    
+    return fishers_method(ps)
+end
+Oₐₚₒₛᵧₘs = df.Oₐₚₒₛᵧₘ
+Oₛᵧₘs = df.Oₛᵧₘ
+pₕ(df.Oₐ₊₋, df.Oₛᵧₘ)
+
+select_df = df[2:end,:]
+pₕ(select_df.Oₐ₊₋, select_df.Oₛᵧₘ)
+Oₐₚₒₛᵧₘs = select_df.Oₐₚₒₛᵧₘ
+Oₛᵧₘs = select_df.Oₛᵧₘ
+
+xs = 1:1:350
+function prediction_interval(Oₐₚₒₛᵧₘs, Oₛᵧₘs, new_Oₛᵧₘs)
+    Pₐₚₒ = ∑(Oₐₚₒₛᵧₘs)/∑(Oₛᵧₘs)
+    prob(x,lower_bound, upper_bound) = ∑([binom(x, k) * Pₐₚₒ^k * (1 - Pₐₚₒ)^(x-k) for k in lower_bound:1:upper_bound  ])
+    upper_bounds = []
+    lower_bounds = []
+    for x in new_Oₛᵧₘs
+        if x < 0
+            error("new_Oₛᵧₘs should be positive")
+        end
+        @show x
+        @show ȳ = Pₐₚₒ * x 
+        upper_bound = minimum([ceil(Int,ȳ + 1), x])
+        lower_bound = maximum([floor(Int,ȳ - 1), 0])
+        @show p = prob(x,lower_bound , upper_bound)
+        while upper_bound < x && lower_bound > 0 && prob(x,lower_bound , upper_bound) < 0.95
+            @show prob(x,lower_bound , upper_bound)
+            upper_bound += 1
+            lower_bound -= 1
+        end
+        push!(upper_bounds, upper_bound)
+        push!(lower_bounds, lower_bound)
+    end
+    return upper_bounds, lower_bounds
+end
+x = 341
+ys = prediction_interval(select_df.Oₐ₊₋, select_df.Oₛᵧₘ, xs)
+
+# save xs, ys[1], ys[2] to csv
+pi_df = DataFrame(x=xs, upper=ys[1], lower=ys[2])
+CSV.write("./data/model_prediction_interval.csv", pi_df)
+
+using PGFPlotsX
+p = @pgf Axis(
+    {
+        xlabel = "number of synonymous mutations \$n \$",
+        ylabel = "number of APOBEC3-relevant mutations \$n_{\\rm a}\$",
+        width = "10cm",
+        height = "10cm",
+        # show grid lines
+        grid = "major",
+        # set legend pos to north west
+        legend_pos = "north west",
+    },
+    Plot(
+        {
+            only_marks,
+            # set mark size to 1.5pt
+            # mark_size = "1pt",
+            # let the mark to be semi transparent
+            mark_options = {fill_opacity = 0.1},
+            color = "black"
+        },
+        Table(x=df.Oₛᵧₘ, y=df.Oₐ₊₋)
+    ),
+    Plot(
+        {
+            no_marks,
+            red!30,
+        },
+        Table(x=xs, y=ys[1])
+    )
+    ,
+    Plot(
+        {
+            no_marks,
+            red!30,
+        },
+        Table(x=xs, y=ys[2])
+    ),
+) 
+

@@ -289,7 +289,7 @@ rand_label = rand(1:100)
 using BSON 
 # save data
 label = "s_$(Par.σ)_sₕ_$(Par.σₕ)_μ₀_$(Par.μ₀)_β₀_$(Par.β₀)_Kt_$(Par.K(0.0))_$(Par.K(100.0))"
-BSON.@save "data/extended_simulated_$(label)_$(rand_label).bson" sampled_DNA time_points Par N_t
+BSON.@save "data/mutation_selection_$(label)_$(rand_label).bson" sampled_DNA time_points Par N_t
 
 using Plots 
 using LaTeXStrings
